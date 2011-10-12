@@ -1,53 +1,35 @@
 ﻿using System;
-using System.Transactions;
+using WebBackgrounder.EntityFramework.Entities;
 
 namespace WebBackgrounder.EntityFramework {
     /// <summary>
     /// Uses the database accessed via EF Code First to coordinate jobs in a web farm.
     /// </summary>
     public class WebFarmJobCoordinator : IJobCoordinator {
-        readonly IJobRepository _repository;
+        readonly JobsContext _context;
+        readonly Guid _workerId = Guid.NewGuid();
 
-        public WebFarmJobCoordinator(IJobRepository repository) {
-            _repository = repository;
+        public WebFarmJobCoordinator(JobsContext context) {
+            _context = context;
         }
 
-        public bool CanDoWork(string jobName, Guid workerId) {
-            bool canDoWork = false;
-            using (var transaction = new TransactionScope()) {
-                if (!_repository.PendingJobsExist(jobName)) {
-                    _repository.CreateJobRequest(jobName, workerId);
-                    canDoWork = _repository.GetWorkerIdForJob(jobName) == workerId;
-                }
-                transaction.Complete();
-            }
-            return canDoWork;
-        }
-
-        public void Done(string jobName, Guid workerId) {
-            _repository.CompleteJob(jobName, workerId);
-        }
-
-        public IDisposable StartWork(string jobName, Guid workerId) {
-            using (var transaction = new TransactionScope()) {
-                _repository.StartWork(jobName, workerId);
-            }
-            return new WorkScope(this, jobName, workerId);
-        }
-
-        private class WorkScope : IDisposable {
-            IJobCoordinator _coordinator;
-            string _jobName;
-            Guid _workerId;
-
-            public WorkScope(IJobCoordinator coordinator, string jobName, Guid workerId) {
-                _coordinator = coordinator;
-                _jobName = jobName;
-                _workerId = workerId;
+        public void PerformWork(IJob jobWorker) {
+            // We need a new instance every time we perform work.
+            var repository = new EntityJobWorkerRepository(_context, jobWorker.Name);
+            
+            // TODO: If the pending job belongs to this worker, we need to deal with that.
+            if (repository.AnyActiveWorkers()) {
+                return;
             }
 
-            public void Dispose() {
-                _coordinator.Done(_jobName, _workerId);
+            var unitOfWork = repository.ReserveWorker(_workerId);
+            if (unitOfWork == null) {
+                return;
+            }
+
+            using (unitOfWork) {
+                jobWorker.Execute();
+                unitOfWork.Complete();
             }
         }
     }

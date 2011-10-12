@@ -5,3 +5,4 @@ obj
 App_Data
 *.results.xml
 /src/packages
+_ReSharper.*

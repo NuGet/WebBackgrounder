@@ -7,26 +7,29 @@ namespace WebBackgrounder.UnitTests {
         public class TheRunTaskMethod {
             [Fact]
             public void DoesNotRunTaskIfHostIsShuttingDown() {
-                var task = new Mock<ITask>();
-                task.Setup(t => t.Execute()).Throws(new InvalidOperationException("Task should not have been executed because the app was shutting down"));
-                var host = new Mock<ITaskHost>();
+                var job = new Mock<IJob>();
+                var host = new Mock<IJobHost>();
                 host.Setup(h => h.ShuttingDown).Returns(true);
-                var taskManager = new TaskManager(null, host.Object, null);
+                var coordinator = new Mock<IJobCoordinator>();
+                coordinator.Setup(c => c.PerformWork(It.IsAny<IJob>())).Throws(new InvalidOperationException("Should not try to do any work"));
+                
+                var taskManager = new JobWorkersManager(job.Object, host.Object, coordinator.Object);
 
-                taskManager.RunTask(task.Object);
+                taskManager.RunTask(job.Object);
             }
 
             [Fact]
-            public void DoesNotRunTaskIfCoordinatorHasNoWork() {
-                var task = new Mock<ITask>();
-                task.Setup(t => t.Execute()).Throws(new InvalidOperationException("Task should not have been executed because the coordinator said no!"));
-                var host = new Mock<ITaskHost>();
+            public void AttemptsToRunTaskIfHostIsNotShuttingDown() {
+                var job = new Mock<IJob>();
+                var host = new Mock<IJobHost>();
                 host.Setup(h => h.ShuttingDown).Returns(false);
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.CanDoWork(It.IsAny<string>(), It.IsAny<Guid>())).Returns(false);
-                var taskManager = new TaskManager(null, host.Object, coordinator.Object);
+                coordinator.Setup(c => c.PerformWork(job.Object)).Verifiable();
+                var taskManager = new JobWorkersManager(job.Object, host.Object, coordinator.Object);
 
-                taskManager.RunTask(task.Object);
+                taskManager.RunTask(job.Object);
+
+                coordinator.Verify();
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System.Web.Hosting;
 
 namespace WebBackgrounder {
-    public class AspNetTaskHost : ITaskHost, IRegisteredObject {
+    public class AspNetTaskHost : IJobHost, IRegisteredObject {
         public AspNetTaskHost() {
             HostingEnvironment.RegisterObject(this);
         }

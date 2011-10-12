@@ -48,11 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\Job.cs" />
-    <Compile Include="Entities\JobContext.cs" />
-    <Compile Include="IJobRepository.cs" />
+    <Compile Include="Entities\JobWorker.cs" />
+    <Compile Include="Entities\JobsContext.cs" />
     <Compile Include="JobStatus.cs" />
-    <Compile Include="EntityJobRepository.cs" />
+    <Compile Include="EntityJobWorkerRepository.cs" />
+    <Compile Include="JobUnitOfWork.cs" />
     <Compile Include="WebFarmJobCoordinator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
