@@ -5,23 +5,23 @@ namespace WebBackgrounder.EntityFramework
 {
     public class JobUnitOfWork
     {
-        readonly EntityWorkItemRepository _repository;
-        readonly WorkItem _workItem;
+        readonly IWorkItemRepository _repository;
+        readonly object _workItemId;
 
-        public JobUnitOfWork(EntityWorkItemRepository repository, WorkItem workItem)
+        public JobUnitOfWork(IWorkItemRepository repository, object workItemId)
         {
-            _workItem = workItem;
+            _workItemId = workItemId;
             _repository = repository;
         }
 
         public void Complete()
         {
-            _repository.SetWorkItemComplete(_workItem.Id);
+            _repository.SetWorkItemCompleted(_workItemId);
         }
 
         public void Fail(Exception exception)
         {
-            _repository.SetWorkItemFailed(_workItem.Id, exception);
+            _repository.SetWorkItemFailed(_workItemId, exception);
         }
     }
 }

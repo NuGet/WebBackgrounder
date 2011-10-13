@@ -40,6 +40,9 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -57,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Entities\WorkItem.cs" />
     <Compile Include="Entities\WorkItemsContext.cs" />
+    <Compile Include="IWorkItemRepository.cs" />
     <Compile Include="JobStatus.cs" />
     <Compile Include="EntityWorkItemRepository.cs" />
     <Compile Include="JobUnitOfWork.cs" />
@@ -71,7 +75,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="WebBackgrounder.EntityFramework.nuspec" />
+    <None Include="WebBackgrounder.EntityFramework.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />

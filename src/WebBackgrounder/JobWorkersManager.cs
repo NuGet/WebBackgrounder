@@ -14,6 +14,10 @@ namespace WebBackgrounder
         {
         }
 
+        public JobWorkersManager(IJob jobWorker, IJobCoordinator coordinator) : this(jobWorker, new AspNetTaskHost(), coordinator)
+        {
+        }
+
         public JobWorkersManager(IJob jobWorker, IJobHost host, IJobCoordinator coordinator)
         {
             _jobWorker = jobWorker;

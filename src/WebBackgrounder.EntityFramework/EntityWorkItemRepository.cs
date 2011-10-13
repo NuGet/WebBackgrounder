@@ -5,36 +5,29 @@ using WebBackgrounder.EntityFramework.Entities;
 
 namespace WebBackgrounder.EntityFramework
 {
-    public class EntityWorkItemRepository
+    public class EntityWorkItemRepository : IWorkItemRepository
     {
         WorkItemsContext _context;
         readonly string _jobName;
 
-        public EntityWorkItemRepository(string jobName)
+        public EntityWorkItemRepository(string jobName, Func<WorkItemsContext> contextThunk)
         {
-            _context = new WorkItemsContext();
+            _context = contextThunk();
             _jobName = jobName;
         }
 
-        public JobUnitOfWork ReserveWork(string workerId)
+        public void RunInTransaction(Action query)
         {
-            WorkItem workItem;
             using (var transaction = new TransactionScope())
             {
                 _context.Connection.Open();
-                if (AnyActiveWorker)
-                {
-                    return null;
-                }
-
-                workItem = CreateWorker(workerId);
+                query();
                 transaction.Complete();
             }
             _context = new WorkItemsContext();
-            return new JobUnitOfWork(this, workItem);
         }
 
-        private bool AnyActiveWorker
+        public bool AnyActiveWorker
         {
             get
             {
@@ -56,7 +49,7 @@ namespace WebBackgrounder.EntityFramework
                     select w).FirstOrDefault();
         }
 
-        private WorkItem CreateWorker(string workerId)
+        public object CreateWorkItem(string workerId)
         {
             var workItem = new WorkItem
             {
@@ -67,19 +60,19 @@ namespace WebBackgrounder.EntityFramework
             };
             _context.WorkItems.Add(workItem);
             _context.SaveChanges();
-            return workItem;
+            return workItem.Id;
         }
 
-        public void SetWorkItemComplete(int workItemId)
+        public void SetWorkItemCompleted(object workItemId)
         {
-            var workItem = GetWorkItem(workItemId);
+            var workItem = GetWorkItem((int)workItemId);
             workItem.Completed = DateTime.UtcNow;
             _context.SaveChanges();
         }
 
-        public void SetWorkItemFailed(int workItemId, Exception exception)
+        public void SetWorkItemFailed(object workItemId, Exception exception)
         {
-            var workItem = GetWorkItem(workItemId);
+            var workItem = GetWorkItem((int)workItemId);
             workItem.Completed = DateTime.UtcNow;
             workItem.ExceptionInfo = exception.Message + Environment.NewLine + exception.StackTrace;
             _context.SaveChanges();

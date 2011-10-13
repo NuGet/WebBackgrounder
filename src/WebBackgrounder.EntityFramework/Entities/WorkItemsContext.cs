@@ -6,7 +6,7 @@ namespace WebBackgrounder.EntityFramework.Entities
 {
     public class WorkItemsContext : DbContext
     {
-        public DbSet<WorkItem> WorkItems { get; set; }
+        public IDbSet<WorkItem> WorkItems { get; set; }
 
         public DbConnection Connection
         {

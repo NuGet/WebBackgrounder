@@ -1,4 +1,5 @@
 ﻿using System;
+using WebBackgrounder.EntityFramework.Entities;
 
 namespace WebBackgrounder.EntityFramework
 {
@@ -8,13 +9,19 @@ namespace WebBackgrounder.EntityFramework
     public class WebFarmJobCoordinator : IJobCoordinator
     {
         readonly static string WorkerId = Guid.NewGuid().ToString();
+        readonly Func<string, IWorkItemRepository> _repositoryThunk;
+
+        public WebFarmJobCoordinator(Func<string, IWorkItemRepository> repositoryThunk)
+        {
+            _repositoryThunk = repositoryThunk;
+        }
 
         public void PerformWork(IJob jobWorker)
         {
             // We need a new instance every time we perform work.
-            var repository = new EntityWorkItemRepository(jobWorker.Name);
+            var repository = _repositoryThunk(jobWorker.Name);
 
-            var unitOfWork = repository.ReserveWork(WorkerId);
+            var unitOfWork = ReserveWork(repository, WorkerId);
             if (unitOfWork == null)
             {
                 return;
@@ -32,5 +39,28 @@ namespace WebBackgrounder.EntityFramework
                 unitOfWork.Fail(exception);
             }
         }
+
+        public JobUnitOfWork ReserveWork(IWorkItemRepository repository, string workerId)
+        {
+            object workItemId = null;
+            
+            repository.RunInTransaction(() =>
+                {
+                    if (repository.AnyActiveWorker)
+                    {
+                        workItemId = null;
+                        return;
+                    }
+                    workItemId = repository.CreateWorkItem(workerId);
+                }
+            );
+
+            if (workItemId == null)
+            {
+                return null;
+            }
+            return new JobUnitOfWork(repository, workItemId);
+        }
+
     }
 }
