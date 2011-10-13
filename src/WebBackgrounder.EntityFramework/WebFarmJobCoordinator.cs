@@ -7,7 +7,7 @@ namespace WebBackgrounder.EntityFramework {
     /// </summary>
     public class WebFarmJobCoordinator : IJobCoordinator {
         readonly JobsContext _context;
-        readonly Guid _workerId = Guid.NewGuid();
+        readonly static string _workerId = Guid.NewGuid().ToString();
 
         public WebFarmJobCoordinator(JobsContext context) {
             _context = context;
@@ -16,20 +16,20 @@ namespace WebBackgrounder.EntityFramework {
         public void PerformWork(IJob jobWorker) {
             // We need a new instance every time we perform work.
             var repository = new EntityJobWorkerRepository(_context, jobWorker.Name);
-            
-            // TODO: If the pending job belongs to this worker, we need to deal with that.
-            if (repository.AnyActiveWorkers()) {
-                return;
-            }
 
-            var unitOfWork = repository.ReserveWorker(_workerId);
+            var unitOfWork = repository.ReserveWork(_workerId);
             if (unitOfWork == null) {
                 return;
             }
 
-            using (unitOfWork) {
+            // We need to wait because we're holding a lock while this 
+            // work gets done to ensure the app domain doesn't kill it.
+            try {
                 jobWorker.Execute();
                 unitOfWork.Complete();
+            }
+            catch (Exception exception) {
+                unitOfWork.Fail(exception);
             }
         }
     }

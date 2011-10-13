@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace WebBackgrounder {
     public interface IJob {
@@ -7,16 +6,16 @@ namespace WebBackgrounder {
         /// Identifies the type of job. For example, "UpdateStats"
         /// </summary>
         string Name { get; }
-        
+
         /// <summary>
         /// Executes the task
         /// </summary>
         /// <returns></returns>
-        Task Execute();
-        
+        void Execute();
+
         /// <summary>
         /// Interval in milliseconds.
         /// </summary>
-        TimeSpan Interval { get;  }
+        TimeSpan Interval { get; }
     }
 }

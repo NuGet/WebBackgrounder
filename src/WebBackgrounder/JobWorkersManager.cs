@@ -25,6 +25,7 @@ namespace WebBackgrounder {
 
         void OnTimerElapsed(object sender) {
             _timer.Stop();
+
             try {
                 // REVIEW: Make sure if this throws, that ELMAH logs it. :)
                 RunTask(_jobWorker);

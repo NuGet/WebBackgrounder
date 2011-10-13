@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<WebBackgrounder.EntityFramework.Entities.JobWorker>
+@{
     ViewBag.Title = "Index";
 }
 
@@ -7,3 +8,52 @@
 <p>
 This site is used to test and demonstrate WebBackgrounder
 </p>
+
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>WorkerId</th>
+        <th>Started</th>
+        <th>Completed</th>
+        <th>Elapsed</th>
+        <th>ExceptionInfo</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.WorkerId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Started)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Completed)
+        </td>
+        <td>
+            @Elapsed(item)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ExceptionInfo)
+        </td>
+    </tr>
+}
+
+</table>
+
+@helper Elapsed(WebBackgrounder.EntityFramework.Entities.JobWorker worker) {
+    if (worker.Completed == null) {
+        <em>@((DateTime.UtcNow - worker.Started).TotalSeconds)s so far...</em>
+    }
+    else {
+        <span>@((worker.Completed.Value - worker.Started).TotalSeconds)s</span>
+    } 
+    
+}
