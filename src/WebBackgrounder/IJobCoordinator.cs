@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace WebBackgrounder {
-    public interface IJobCoordinator {
+﻿namespace WebBackgrounder
+{
+    public interface IJobCoordinator
+    {
         /// <summary>
         /// Coordinates the work to be done and then does the work if necessary.
         /// </summary>

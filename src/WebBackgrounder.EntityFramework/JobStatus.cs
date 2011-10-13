@@ -1,6 +1,7 @@
-﻿
-namespace WebBackgrounder.EntityFramework {
-    public enum JobStatus {
+﻿namespace WebBackgrounder.EntityFramework
+{
+    public enum JobStatus
+    {
         Ready = 1,
         Started = 2,
         Complete = 3,

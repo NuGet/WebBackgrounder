@@ -1,22 +1,27 @@
 ﻿using System;
 using WebBackgrounder.EntityFramework.Entities;
 
-namespace WebBackgrounder.EntityFramework {
-    public class JobUnitOfWork {
-        readonly EntityJobWorkerRepository _repository;
-        readonly JobWorker _currentJob;
+namespace WebBackgrounder.EntityFramework
+{
+    public class JobUnitOfWork
+    {
+        readonly EntityWorkItemRepository _repository;
+        readonly WorkItem _workItem;
 
-        public JobUnitOfWork(EntityJobWorkerRepository repository, JobWorker job) {
-            _currentJob = job;
+        public JobUnitOfWork(EntityWorkItemRepository repository, WorkItem workItem)
+        {
+            _workItem = workItem;
             _repository = repository;
         }
 
-        public void Complete() {
-            _repository.SetWorkerComplete(_currentJob);
+        public void Complete()
+        {
+            _repository.SetWorkItemComplete(_workItem.Id);
         }
 
-        public void Fail(Exception exception) {
-            _repository.SetWorkerFailed(_currentJob, exception);
+        public void Fail(Exception exception)
+        {
+            _repository.SetWorkItemFailed(_workItem.Id, exception);
         }
     }
 }

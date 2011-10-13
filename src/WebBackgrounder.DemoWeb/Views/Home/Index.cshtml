@@ -1,7 +1,11 @@
-﻿@model IEnumerable<WebBackgrounder.EntityFramework.Entities.JobWorker>
+﻿@model IEnumerable<WorkItem>
 @{
     ViewBag.Title = "Index";
 }
+
+<script type="text/javascript">
+    window.setInterval(function() { self.location.href = self.location.href}, 100);
+</script>
 
 <h2>WebBackgrounder Demo Site</h2>
 
@@ -26,7 +30,7 @@ This site is used to test and demonstrate WebBackgrounder
             @Html.DisplayFor(modelItem => item.Id)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Name)
+            @Html.DisplayFor(modelItem => item.JobName)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.WorkerId)
@@ -48,12 +52,11 @@ This site is used to test and demonstrate WebBackgrounder
 
 </table>
 
-@helper Elapsed(WebBackgrounder.EntityFramework.Entities.JobWorker worker) {
-    if (worker.Completed == null) {
-        <em>@((DateTime.UtcNow - worker.Started).TotalSeconds)s so far...</em>
+@helper Elapsed(WorkItem workItem) {
+    if (workItem.Completed == null) {
+        <em>@((DateTime.UtcNow - workItem.Started).TotalSeconds)s so far...</em>
     }
     else {
-        <span>@((worker.Completed.Value - worker.Started).TotalSeconds)s</span>
+        <span>@((workItem.Completed.Value - workItem.Started).TotalSeconds)s</span>
     } 
-    
 }

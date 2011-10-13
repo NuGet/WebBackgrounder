@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace WebBackgrounder {
-    public interface IJob {
+namespace WebBackgrounder
+{
+    public interface IJob
+    {
         /// <summary>
         /// Identifies the type of job. For example, "UpdateStats"
         /// </summary>

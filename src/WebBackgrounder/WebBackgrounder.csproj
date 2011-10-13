@@ -49,6 +49,7 @@
     <Compile Include="AspNetTaskHost.cs" />
     <Compile Include="JobWorkersManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SingleServerJobCoordinator.cs" />
     <Compile Include="TimerExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

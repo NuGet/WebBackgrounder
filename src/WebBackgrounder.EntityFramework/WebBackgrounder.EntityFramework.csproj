@@ -55,10 +55,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\JobWorker.cs" />
-    <Compile Include="Entities\JobsContext.cs" />
+    <Compile Include="Entities\WorkItem.cs" />
+    <Compile Include="Entities\WorkItemsContext.cs" />
     <Compile Include="JobStatus.cs" />
-    <Compile Include="EntityJobWorkerRepository.cs" />
+    <Compile Include="EntityWorkItemRepository.cs" />
     <Compile Include="JobUnitOfWork.cs" />
     <Compile Include="WebFarmJobCoordinator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
