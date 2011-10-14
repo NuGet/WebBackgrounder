@@ -7,19 +7,19 @@ namespace WebBackgrounder
     public class Scheduler
     {
         readonly IEnumerable<Schedule> _schedules;
-        
-        public Scheduler(IEnumerable<IJob> jobs)
+
+        public Scheduler(IEnumerable<IJob> jobs, Func<DateTime> nowThunk)
         {
             if (jobs.Any(j => j.Interval < TimeSpan.Zero))
             {
                 throw new ArgumentException("A job cannot have a negative interval.", "jobs");
             }
-            _schedules = jobs.Select(job => new Schedule(job)).ToList();
+            var lastRunTime = nowThunk();
+            _schedules = jobs.Select(job => new Schedule(job, nowThunk) { LastRunTime = lastRunTime }).ToList();
         }
 
-        public Scheduler(IEnumerable<Schedule> schedules)
+        public Scheduler(IEnumerable<IJob> jobs) : this(jobs, () => DateTime.UtcNow)
         {
-            _schedules = schedules;
         }
 
         public Schedule Next()

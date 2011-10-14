@@ -4,37 +4,41 @@ namespace WebBackgrounder
 {
     public class Schedule : IDisposable
     {
-        private DateTime? _lastRunTime;
+        readonly Func<DateTime> _nowThunk;
 
-        public Schedule(IJob job)
+        public Schedule(IJob job) : this(job, () => DateTime.UtcNow)
+        {
+        }
+
+        public Schedule(IJob job, Func<DateTime> nowThunk)
         {
             if (job == null)
             {
                 throw new ArgumentNullException("job");
             }
             Job = job;
+            _nowThunk = nowThunk;
         }
 
         public IJob Job { get; private set; }
 
-        public DateTime? LastRunTime
+        public DateTime LastRunTime
         {
-            get { return _lastRunTime ?? (_lastRunTime = DateTime.UtcNow); }
-            set { _lastRunTime = value ?? DateTime.UtcNow; }
+            get;
+            set;
         }
 
         public DateTime NextRunTime
         {
             get
             {
-                var lastRunTime = LastRunTime ?? DateTime.UtcNow;
-                return lastRunTime.Add(Job.Interval);
+                return LastRunTime.Add(Job.Interval);
             }
         }
 
         public TimeSpan GetIntervalToNextRun()
         {
-            var now = DateTime.UtcNow;
+            var now = _nowThunk();
             if (NextRunTime < now)
             {
                 return TimeSpan.FromMilliseconds(1);
@@ -42,9 +46,14 @@ namespace WebBackgrounder
             return NextRunTime - now;
         }
 
+        public void SetRunComplete()
+        {
+            LastRunTime = _nowThunk();
+        }
+
         void IDisposable.Dispose()
         {
-            LastRunTime = DateTime.UtcNow;
+            SetRunComplete();
         }
     }
 }

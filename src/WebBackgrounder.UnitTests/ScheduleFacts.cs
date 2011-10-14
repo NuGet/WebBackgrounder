@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Generic;
 using Moq;
 using Xunit;
 
@@ -9,20 +9,6 @@ namespace WebBackgrounder.UnitTests
     {
         public class TheNextRunTimeProperty
         {
-            [Fact]
-            public void ReturnsIntervalAddedToNowWhenLastRunTimeIsNull()
-            {
-                var job = new Mock<IJob>();
-                job.Setup(j => j.Interval).Returns(TimeSpan.FromSeconds(30));
-                var schedule = new Schedule(job.Object);
-                var now = DateTime.UtcNow;
-
-                var next = schedule.NextRunTime;
-
-                Assert.True(next >= now.AddSeconds(30));
-                Assert.True(next < now.AddSeconds(31));
-            }
-
             [Fact]
             public void ReturnsIntervalAddedToLastRunTime()
             {
@@ -42,9 +28,10 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsTheSpanBetweenNowAndNextRunTime()
             {
+                var now = DateTime.UtcNow;
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromSeconds(30));
-                var schedule = new Schedule(job.Object);
+                var schedule = new Schedule(job.Object, () => now) {LastRunTime = now};
 
                 var interval = schedule.GetIntervalToNextRun();
 
@@ -78,13 +65,17 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ShrinksOverTimeEvenWhenLastRunIsNull()
             {
+                var startDate = DateTime.UtcNow;
+                var dates = new Queue<DateTime>(new[]{ startDate, startDate.AddMilliseconds(10) });
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(30));
-                var schedule = new Schedule(job.Object);
-                schedule.GetIntervalToNextRun();
-                Thread.Sleep(10);
-                var interval = schedule.GetIntervalToNextRun();
-                Assert.True(interval.TotalMilliseconds <= 30);
+                var schedule = new Schedule(job.Object, dates.Dequeue) { LastRunTime = startDate};
+                
+                var firstInterval = schedule.GetIntervalToNextRun();
+                var secondInterval = schedule.GetIntervalToNextRun();
+
+                Assert.Equal(30, firstInterval.TotalMilliseconds);
+                Assert.Equal(20, secondInterval.TotalMilliseconds);
             }
         }
 
@@ -113,15 +104,14 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void SetsLastRunTimeToNow()
             {
+                var now = DateTime.UtcNow;
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromSeconds(30));
-                var schedule = new Schedule(job.Object) {LastRunTime = DateTime.UtcNow.AddSeconds(-100)};
-                var now = DateTime.UtcNow;
+                var schedule = new Schedule(job.Object, () => now) {LastRunTime = DateTime.UtcNow.AddSeconds(-100)};
 
-                ((IDisposable)schedule).Dispose();
+                schedule.SetRunComplete();
 
-                Assert.True(schedule.LastRunTime >= now);
-                Assert.True(schedule.LastRunTime <= DateTime.UtcNow);
+                Assert.Equal(now, schedule.LastRunTime);
             }
         }
     }

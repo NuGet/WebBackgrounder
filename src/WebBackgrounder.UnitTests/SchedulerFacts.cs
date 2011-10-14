@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Moq;
 using Xunit;
 
@@ -29,29 +27,36 @@ namespace WebBackgrounder.UnitTests
             }
 
             [Fact]
-            public void ReturnsTheCorrectNextScheduleWhenDisposed()
+            public void ReturnsTheCorrectNextScheduleWhenRunComplete()
             {
-                var jobs = new[] { new WaitJob(10), new WaitJob(7), new WaitJob(17) };
-                var scheduler = new Scheduler(jobs);
-
-                using (var firstSchedule = scheduler.Next())
+                var startDate = DateTime.UtcNow.AddMilliseconds(-7);
+                var dates = new Queue<DateTime>(new[]
                 {
-                    firstSchedule.Job.Execute();
-                }
-                
+                    startDate,
+                    startDate.AddSeconds(7),
+                    startDate.AddSeconds(10),
+                    startDate.AddSeconds(14),
+                    startDate.AddSeconds(17),
+                });
+
+                var jobs = new[] { new WaitJob(10), new WaitJob(7), new WaitJob(17) };
+                var scheduler = new Scheduler(jobs, dates.Dequeue);
+
+                var firstSchedule = scheduler.Next();
+                firstSchedule.Job.Execute();
+                firstSchedule.SetRunComplete();
                 var secondSchedule = scheduler.Next();
-                Thread.Sleep(5);
-                ((IDisposable)secondSchedule).Dispose();
+                secondSchedule.SetRunComplete();
                 var thirdSchedule = scheduler.Next();
-                Thread.Sleep(5);
-                ((IDisposable)thirdSchedule).Dispose();
-                var fourthSchedule = scheduler.Next();
-                Thread.Sleep(5);
-                ((IDisposable)fourthSchedule).Dispose();
                 
-                Assert.Equal(jobs[0], secondSchedule.Job);
-                Assert.Equal(jobs[1], thirdSchedule.Job);
-                Assert.Equal(jobs[2], fourthSchedule.Job);
+                thirdSchedule.SetRunComplete();
+                var fourthSchedule = scheduler.Next();
+                fourthSchedule.SetRunComplete();
+
+                Assert.Equal(7, ((WaitJob)firstSchedule.Job).Id);
+                Assert.Equal(10, ((WaitJob)secondSchedule.Job).Id);
+                Assert.Equal(7, ((WaitJob)thirdSchedule.Job).Id);
+                Assert.Equal(17, ((WaitJob)fourthSchedule.Job).Id);
             }
 
             // If a task takes longer than its interval, 
@@ -59,37 +64,47 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void TasksAreScheduledFairly()
             {
-                var now = DateTime.UtcNow;
-                var schedules = new[]
+                var startDate = DateTime.UtcNow.AddMilliseconds(-7);
+                var dates = new Queue<DateTime>(new[]
                 {
-                    new Schedule(new WaitJob(2)) { LastRunTime = now.AddDays(-10)},
-                    new Schedule(new WaitJob(7)) { LastRunTime = now.AddDays(-20)},
-                    new Schedule(new WaitJob(3)) { LastRunTime = now.AddDays(-18)}
-                } ;
-                var scheduler = new Scheduler(schedules);
-                var scheduled = new List<Schedule>();
-                scheduled.Add(scheduler.Next()); // waitjob-7ms
-                scheduled.Last().LastRunTime = now.AddDays(-9);
-                scheduled.Add(scheduler.Next()); // waitjob-3ms
-                scheduled.Last().LastRunTime = now.AddDays(-7);
-                scheduled.Add(scheduler.Next()); // waitjob-2ms
-                scheduled.Last().LastRunTime = now.AddDays(-4);
+                    startDate,
+                    startDate.AddSeconds(100),
+                    startDate.AddSeconds(100),
+                    startDate.AddSeconds(140),
+                    startDate.AddSeconds(170),
+                });
 
+                var jobs = new[] { new WaitJob(10), new WaitJob(7), new WaitJob(17) };
+                var scheduler = new Scheduler(jobs, dates.Dequeue);
 
-                Assert.Equal(schedules[1], scheduled[0]);
-                Assert.Equal(schedules[2], scheduled[1]);
-                Assert.Equal(schedules[0], scheduled[2]);
+                var firstSchedule = scheduler.Next();
+                firstSchedule.Job.Execute();
+                firstSchedule.SetRunComplete();
+                var secondSchedule = scheduler.Next();
+                secondSchedule.SetRunComplete();
+                var thirdSchedule = scheduler.Next();
+
+                thirdSchedule.SetRunComplete();
+                var fourthSchedule = scheduler.Next();
+                fourthSchedule.SetRunComplete();
+
+                Assert.Equal(7, ((WaitJob)firstSchedule.Job).Id);
+                Assert.Equal(10, ((WaitJob)secondSchedule.Job).Id);
+                Assert.Equal(17, ((WaitJob)thirdSchedule.Job).Id);
+                Assert.Equal(7, ((WaitJob)fourthSchedule.Job).Id);
             }
 
             private class WaitJob : Job
             {
-                public WaitJob(int intervalMilliseconds) : base("Waits", TimeSpan.FromMilliseconds(intervalMilliseconds))
+                public WaitJob(int intervalSeconds) : base("Waits", TimeSpan.FromSeconds(intervalSeconds))
                 {
+                    Id = intervalSeconds;
                 }
+
+                public int Id { get; private set; }
 
                 public override void Execute()
                 {
-                    Thread.Sleep(Interval);
                 }
             }
         }
