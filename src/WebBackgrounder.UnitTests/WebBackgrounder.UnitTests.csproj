@@ -61,7 +61,6 @@
     <Compile Include="JobManagerFacts.cs" />
     <Compile Include="ScheduleFacts.cs" />
     <Compile Include="SchedulerFacts.cs" />
-    <Compile Include="WebFarmJobCoordinatorFacts.cs" />
     <Compile Include="WorkItemCleanupJobFacts.cs" />
   </ItemGroup>
   <ItemGroup>

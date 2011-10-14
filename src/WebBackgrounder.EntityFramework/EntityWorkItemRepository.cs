@@ -65,20 +65,20 @@ namespace WebBackgrounder.EntityFramework
 
         public void SetWorkItemCompleted(object workItemId)
         {
-            var workItem = GetWorkItem((int)workItemId);
+            var workItem = GetWorkItem((long)workItemId);
             workItem.Completed = DateTime.UtcNow;
             _context.SaveChanges();
         }
 
         public void SetWorkItemFailed(object workItemId, Exception exception)
         {
-            var workItem = GetWorkItem((int)workItemId);
+            var workItem = GetWorkItem((long)workItemId);
             workItem.Completed = DateTime.UtcNow;
             workItem.ExceptionInfo = exception.Message + Environment.NewLine + exception.StackTrace;
             _context.SaveChanges();
         }
 
-        private WorkItem GetWorkItem(int workerId)
+        private WorkItem GetWorkItem(long workerId)
         {
             return _context.WorkItems.Find(workerId);
         }

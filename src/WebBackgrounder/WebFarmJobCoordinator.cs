@@ -41,6 +41,13 @@ namespace WebBackgrounder
         {
             object workItemId = null;
             
+            // We do a double check here because this is the first query we run and 
+            // a database can't be created inside a transaction scope.
+            if (repository.AnyActiveWorker)
+            {
+                return null;
+            }
+
             repository.RunInTransaction(() =>
                 {
                     if (repository.AnyActiveWorker)

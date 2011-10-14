@@ -12,11 +12,13 @@ namespace WebBackgrounder
         readonly Scheduler _scheduler;
         Action<Exception> _failHandler;
 
-        public JobManager(IEnumerable<IJob> jobs, IJobHost host) : this(jobs, host, new SingleServerJobCoordinator())
+        public JobManager(IEnumerable<IJob> jobs, IJobHost host)
+            : this(jobs, host, new SingleServerJobCoordinator())
         {
         }
 
-        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator) : this(jobs, new JobHost(), coordinator)
+        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator)
+            : this(jobs, new JobHost(), coordinator)
         {
         }
 
@@ -34,7 +36,7 @@ namespace WebBackgrounder
             {
                 throw new ArgumentNullException("coordinator");
             }
-            
+
             _scheduler = new Scheduler(jobs);
             _host = host;
             _coordinator = coordinator;
@@ -53,22 +55,23 @@ namespace WebBackgrounder
 
         void OnTimerElapsed(object sender)
         {
-            _timer.Stop();
-
             try
             {
-                using (var schedule = _scheduler.Next())
-                {
-                    _host.DoWork(() => _coordinator.PerformWork(schedule.Job));
-                }
+                _timer.Stop();
+                PerformTask();
+                _timer.Next(_scheduler.Next().Job.Interval); // Start up again.
             }
             catch (Exception e)
             {
-                OnException(e); // Someone else's problem now. :)
+                OnException(e); // Someone else's problem.
             }
-            finally
+        }
+
+        void PerformTask()
+        {
+            using (var schedule = _scheduler.Next())
             {
-                _timer.Next(_scheduler.Next().Job.Interval); // Start up again.
+                _host.DoWork(() => _coordinator.PerformWork(schedule.Job));
             }
         }
 
