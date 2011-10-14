@@ -5,9 +5,9 @@ namespace WebBackgrounder
     public class JobUnitOfWork
     {
         readonly IWorkItemRepository _repository;
-        readonly object _workItemId;
+        readonly long _workItemId;
 
-        public JobUnitOfWork(IWorkItemRepository repository, object workItemId)
+        public JobUnitOfWork(IWorkItemRepository repository, long workItemId)
         {
             _workItemId = workItemId;
             _repository = repository;

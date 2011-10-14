@@ -49,7 +49,7 @@ namespace WebBackgrounder.EntityFramework
                     select w).FirstOrDefault();
         }
 
-        public object CreateWorkItem(string workerId)
+        public long CreateWorkItem(string workerId)
         {
             var workItem = new WorkItem
             {
@@ -63,16 +63,16 @@ namespace WebBackgrounder.EntityFramework
             return workItem.Id;
         }
 
-        public void SetWorkItemCompleted(object workItemId)
+        public void SetWorkItemCompleted(long workItemId)
         {
-            var workItem = GetWorkItem((long)workItemId);
+            var workItem = GetWorkItem(workItemId);
             workItem.Completed = DateTime.UtcNow;
             _context.SaveChanges();
         }
 
-        public void SetWorkItemFailed(object workItemId, Exception exception)
+        public void SetWorkItemFailed(long workItemId, Exception exception)
         {
-            var workItem = GetWorkItem((long)workItemId);
+            var workItem = GetWorkItem(workItemId);
             workItem.Completed = DateTime.UtcNow;
             workItem.ExceptionInfo = exception.Message + Environment.NewLine + exception.StackTrace;
             _context.SaveChanges();

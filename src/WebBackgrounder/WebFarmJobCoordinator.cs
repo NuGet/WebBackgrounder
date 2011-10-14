@@ -39,7 +39,7 @@ namespace WebBackgrounder
 
         public JobUnitOfWork ReserveWork(IWorkItemRepository repository, string workerId)
         {
-            object workItemId = null;
+            long? workItemId = null;
             
             // We do a double check here because this is the first query we run and 
             // a database can't be created inside a transaction scope.
@@ -63,7 +63,7 @@ namespace WebBackgrounder
             {
                 return null;
             }
-            return new JobUnitOfWork(repository, workItemId);
+            return new JobUnitOfWork(repository, workItemId.Value);
         }
 
     }

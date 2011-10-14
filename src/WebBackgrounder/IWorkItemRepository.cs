@@ -6,8 +6,8 @@ namespace WebBackgrounder
     {
         void RunInTransaction(Action query);
         bool AnyActiveWorker { get; }
-        object CreateWorkItem(string workerId);
-        void SetWorkItemCompleted(object workItemId);
-        void SetWorkItemFailed(object workItemId, Exception exception);
+        long CreateWorkItem(string workerId);
+        void SetWorkItemCompleted(long workItemId);
+        void SetWorkItemFailed(long workItemId, Exception exception);
     }
 }

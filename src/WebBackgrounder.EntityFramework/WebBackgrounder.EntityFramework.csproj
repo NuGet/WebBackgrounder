@@ -62,7 +62,6 @@
     <Compile Include="Entities\WorkItem.cs" />
     <Compile Include="Entities\WorkItemsContext.cs" />
     <Compile Include="EntityWorkItemRepository.cs" />
-    <Compile Include="WebFarmJobCoordinator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkItemCleanupJob.cs" />
   </ItemGroup>

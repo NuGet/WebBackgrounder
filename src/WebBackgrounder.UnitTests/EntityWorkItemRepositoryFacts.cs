@@ -97,14 +97,15 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void SetsWorkItemCompletedSetsCompletedDate()
             {
+                const long workItemId = 123;
                 var context = new Mock<WorkItemsContext>();
-                var workItem = new WorkItem { Id = 123 };
+                var workItem = new WorkItem { Id = workItemId };
                 var workItems = new Mock<IDbSet<WorkItem>>();
-                workItems.Setup(w => w.Find(123)).Returns(workItem);
+                workItems.Setup(w => w.Find(workItemId)).Returns(workItem);
                 context.Object.WorkItems = workItems.Object;
                 var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
 
-                repository.SetWorkItemCompleted(123);
+                repository.SetWorkItemCompleted(workItemId);
 
                 Assert.NotNull(workItem.Completed);
             }
@@ -114,7 +115,7 @@ namespace WebBackgrounder.UnitTests
             {
                 var context = new Mock<WorkItemsContext>();
                 var workItems = new Mock<IDbSet<WorkItem>>();
-                workItems.Setup(w => w.Find(It.IsAny<int>())).Returns(new WorkItem());
+                workItems.Setup(w => w.Find(It.IsAny<long>())).Returns(new WorkItem());
                 context.Object.WorkItems = workItems.Object;
                 context.Setup(c => c.SaveChanges()).Verifiable();
                 var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
@@ -130,14 +131,15 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void SetsWorkItemFailedSetsCompletedDateAndExceptionInfo()
             {
+                const long workItemId = 123;
                 var context = new Mock<WorkItemsContext>();
-                var workItem = new WorkItem { Id = 123 };
+                var workItem = new WorkItem { Id = workItemId };
                 var workItems = new Mock<IDbSet<WorkItem>>();
-                workItems.Setup(w => w.Find(123)).Returns(workItem);
+                workItems.Setup(w => w.Find(workItemId)).Returns(workItem);
                 context.Object.WorkItems = workItems.Object;
                 var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
 
-                repository.SetWorkItemFailed(123, new InvalidOperationException("Pretend failure!"));
+                repository.SetWorkItemFailed(workItemId, new InvalidOperationException("Pretend failure!"));
 
                 Assert.NotNull(workItem.Completed);
                 Assert.Contains("Pretend failure!", workItem.ExceptionInfo);
@@ -148,7 +150,7 @@ namespace WebBackgrounder.UnitTests
             {
                 var context = new Mock<WorkItemsContext>();
                 var workItems = new Mock<IDbSet<WorkItem>>();
-                workItems.Setup(w => w.Find(It.IsAny<int>())).Returns(new WorkItem());
+                workItems.Setup(w => w.Find(It.IsAny<long>())).Returns(new WorkItem());
                 context.Object.WorkItems = workItems.Object;
                 context.Setup(c => c.SaveChanges()).Verifiable();
                 var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
