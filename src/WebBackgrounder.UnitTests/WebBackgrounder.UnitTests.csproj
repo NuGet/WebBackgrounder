@@ -54,7 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AspNetTaskHostFacts.cs" />
+    <Compile Include="JobHostFacts.cs" />
     <Compile Include="EntityWorkItemRepositoryFacts.cs" />
     <Compile Include="InMemoryDbSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

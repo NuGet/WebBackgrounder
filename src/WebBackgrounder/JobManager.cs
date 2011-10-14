@@ -16,7 +16,7 @@ namespace WebBackgrounder
         {
         }
 
-        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator) : this(jobs, new AspNetTaskHost(), coordinator)
+        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator) : this(jobs, new JobHost(), coordinator)
         {
         }
 
@@ -59,7 +59,7 @@ namespace WebBackgrounder
             {
                 using (var schedule = _scheduler.Next())
                 {
-                    RunJob(schedule.Job);
+                    _host.DoWork(() => _coordinator.PerformWork(schedule.Job));
                 }
             }
             catch (Exception e)
@@ -69,18 +69,6 @@ namespace WebBackgrounder
             finally
             {
                 _timer.Next(_scheduler.Next().Job.Interval); // Start up again.
-            }
-        }
-
-        public void RunJob(IJob job)
-        {
-            lock (_host)
-            {
-                if (_host.ShuttingDown)
-                {
-                    return;
-                }
-                _coordinator.PerformWork(job);
             }
         }
 

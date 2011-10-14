@@ -46,7 +46,7 @@
     <Compile Include="IJobCoordinator.cs" />
     <Compile Include="IJob.cs" />
     <Compile Include="IJobHost.cs" />
-    <Compile Include="AspNetTaskHost.cs" />
+    <Compile Include="JobHost.cs" />
     <Compile Include="IWorkItemRepository.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="JobUnitOfWork.cs" />

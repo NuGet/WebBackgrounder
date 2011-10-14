@@ -1,4 +1,6 @@
-﻿namespace WebBackgrounder
+﻿using System;
+
+namespace WebBackgrounder
 {
     /// <summary>
     /// Represents the environment that is hosting the task manager. 
@@ -6,6 +8,6 @@
     /// </summary>
     public interface IJobHost
     {
-        bool ShuttingDown { get; }
+        void DoWork(Action work);
     }
 }

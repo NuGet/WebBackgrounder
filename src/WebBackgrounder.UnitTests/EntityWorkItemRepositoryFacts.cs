@@ -15,7 +15,8 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsTrueWhenAWorkerHasNoCompletedDate()
             {
-                var workItems = new InMemoryDbSet<WorkItem> {new WorkItem
+                var workItems = new InMemoryDbSet<WorkItem> {
+                    new WorkItem
                     {
                         JobName = "docoolstuff", 
                         Started = DateTime.UtcNow, 
