@@ -47,10 +47,13 @@
     <Compile Include="IJob.cs" />
     <Compile Include="IJobHost.cs" />
     <Compile Include="AspNetTaskHost.cs" />
+    <Compile Include="IWorkItemRepository.cs" />
+    <Compile Include="JobUnitOfWork.cs" />
     <Compile Include="JobWorkersManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleServerJobCoordinator.cs" />
     <Compile Include="TimerExtensions.cs" />
+    <Compile Include="WebFarmJobCoordinator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WebBackgrounder.nuspec" />

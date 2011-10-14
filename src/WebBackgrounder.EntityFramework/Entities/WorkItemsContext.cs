@@ -12,6 +12,8 @@ namespace WebBackgrounder.EntityFramework.Entities
         {
             get
             {
+                // For some reason, I get different behavior when I use this
+                // instead of Database.Connection. This works, that doesn't. :(
                 return ((IObjectContextAdapter)this).ObjectContext.Connection;
             }
         }

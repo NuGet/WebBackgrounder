@@ -1,7 +1,6 @@
 ﻿using System;
-using WebBackgrounder.EntityFramework.Entities;
 
-namespace WebBackgrounder.EntityFramework
+namespace WebBackgrounder
 {
     public interface IWorkItemRepository
     {

@@ -21,7 +21,7 @@ namespace WebBackgrounder.DemoWeb.App_Start {
         private static JobWorkersManager CreateJobWorkersManager()
         {
             var job = new SampleJob();
-            Func<string, IWorkItemRepository> repositoryThunk = (jobname) => new EntityWorkItemRepository(jobname, () => new WorkItemsContext());
+            Func<string, IWorkItemRepository> repositoryThunk = jobname => new EntityWorkItemRepository(jobname, () => new WorkItemsContext());
             var coordinator = new WebFarmJobCoordinator(repositoryThunk);
             return new JobWorkersManager(job, coordinator);
         }

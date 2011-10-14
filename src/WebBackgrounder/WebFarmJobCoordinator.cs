@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebBackgrounder.EntityFramework
+namespace WebBackgrounder
 {
     /// <summary>
     /// Uses the database accessed via EF Code First to coordinate jobs in a web farm.
@@ -26,8 +26,6 @@ namespace WebBackgrounder.EntityFramework
                 return;
             }
 
-            // We need to wait because we're holding a lock while this 
-            // work gets done to ensure the app domain doesn't kill it.
             try
             {
                 jobWorker.Execute();
