@@ -17,6 +17,7 @@ namespace WebBackgrounder.UnitTests
             : this(Enumerable.Empty<TEntity>())
         {
         }
+
         public InMemoryDbSet(IEnumerable<TEntity> entities)
         {
             _set = new HashSet<TEntity>();

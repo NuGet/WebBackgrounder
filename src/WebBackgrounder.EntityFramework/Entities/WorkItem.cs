@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebBackgrounder.EntityFramework.Entities {
     public class WorkItem {
         public int Id { get; set; }
+        [StringLength(64)]
         public string JobName { get; set; }
+        [StringLength(64)]
         public string WorkerId { get; set; }
         public DateTime Started { get; set; }
         public DateTime? Completed { get; set; }

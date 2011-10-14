@@ -48,10 +48,13 @@
     <Compile Include="IJobHost.cs" />
     <Compile Include="AspNetTaskHost.cs" />
     <Compile Include="IWorkItemRepository.cs" />
+    <Compile Include="Job.cs" />
     <Compile Include="JobUnitOfWork.cs" />
-    <Compile Include="JobWorkersManager.cs" />
+    <Compile Include="JobManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Schedule.cs" />
     <Compile Include="SingleServerJobCoordinator.cs" />
+    <Compile Include="Scheduler.cs" />
     <Compile Include="TimerExtensions.cs" />
     <Compile Include="WebFarmJobCoordinator.cs" />
   </ItemGroup>

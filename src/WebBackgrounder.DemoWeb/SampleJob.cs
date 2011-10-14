@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Threading;
 
-namespace WebBackgrounder.DemoWeb {
-    public class SampleJob : IJob {
-        public string Name {
-            get {
-                return "SampleJob";
-            }
+namespace WebBackgrounder.DemoWeb
+{
+    public class SampleJob : Job
+    {
+        public SampleJob(TimeSpan interval) : base("Sample Job", interval)
+        {
         }
 
-        public void Execute() {
+        public override void Execute()
+        {
             Thread.Sleep(3000);
-        }
-
-        public TimeSpan Interval {
-            get {
-                return TimeSpan.FromSeconds(5);
-            }
         }
     }
 }

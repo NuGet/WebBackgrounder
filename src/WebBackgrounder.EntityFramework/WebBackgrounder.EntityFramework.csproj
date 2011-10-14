@@ -63,6 +63,7 @@
     <Compile Include="EntityWorkItemRepository.cs" />
     <Compile Include="WebFarmJobCoordinator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorkItemCleanupJob.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebBackgrounder\WebBackgrounder.csproj">

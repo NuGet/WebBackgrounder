@@ -1,29 +1,40 @@
 ﻿using System;
+using Elmah;
 using WebBackgrounder.EntityFramework;
 using WebBackgrounder.EntityFramework.Entities;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Shutdown")]
 
-namespace WebBackgrounder.DemoWeb.App_Start {
+namespace WebBackgrounder.DemoWeb.App_Start
+{
     public static class WebBackgrounderSetup
     {
-        private static readonly JobWorkersManager Manager = CreateJobWorkersManager();
+        private static readonly JobManager Manager = CreateJobWorkersManager();
 
-        public static void Start() {
+        public static void Start()
+        {
             Manager.Start();
         }
 
-        public static void Shutdown() {
+        public static void Shutdown()
+        {
             Manager.Stop();
         }
 
-        private static JobWorkersManager CreateJobWorkersManager()
+        private static JobManager CreateJobWorkersManager()
         {
-            var job = new SampleJob();
+            var jobs = new IJob[]
+            {
+                new SampleJob(TimeSpan.FromSeconds(5)),
+                new WorkItemCleanupJob(10, TimeSpan.FromSeconds(10), new WorkItemsContext())
+            };
+
             Func<string, IWorkItemRepository> repositoryThunk = jobname => new EntityWorkItemRepository(jobname, () => new WorkItemsContext());
             var coordinator = new WebFarmJobCoordinator(repositoryThunk);
-            return new JobWorkersManager(job, coordinator);
+            var manager = new JobManager(jobs, coordinator);
+            manager.Fail(e => ErrorSignal.FromCurrentContext().Raise(e));
+            return manager;
         }
     }
 }

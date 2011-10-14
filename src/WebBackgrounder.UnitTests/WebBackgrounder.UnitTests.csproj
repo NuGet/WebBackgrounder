@@ -58,8 +58,11 @@
     <Compile Include="EntityWorkItemRepositoryFacts.cs" />
     <Compile Include="InMemoryDbSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaskManagerFacts.cs" />
+    <Compile Include="JobManagerFacts.cs" />
+    <Compile Include="ScheduleFacts.cs" />
+    <Compile Include="SchedulerFacts.cs" />
     <Compile Include="WebFarmJobCoordinatorFacts.cs" />
+    <Compile Include="WorkItemCleanupJobFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
