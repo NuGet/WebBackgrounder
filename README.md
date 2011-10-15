@@ -33,3 +33,7 @@ This is not a general purpose scheduling framework. There are much better ones
 out there such as FluentScheduler and Quartz.net. The goal of this project is 
 to handle one task only, manage a recurring task on an interval in the 
 background for a web app.
+
+The needs I have are very simple. I didn't need a high fidelity scheduler. 
+Maybe later, I'll look to integrate what I've done with one of the others. 
+But for now, this scratches an itch.

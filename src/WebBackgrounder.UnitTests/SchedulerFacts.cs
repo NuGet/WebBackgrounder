@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using Xunit;
 
@@ -103,8 +105,9 @@ namespace WebBackgrounder.UnitTests
 
                 public int Id { get; private set; }
 
-                public override void Execute()
+                public override Task Execute()
                 {
+                    return new Task(() => Thread.Sleep(1));
                 }
             }
         }

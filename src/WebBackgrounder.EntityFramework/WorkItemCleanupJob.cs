@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using WebBackgrounder.EntityFramework.Entities;
 
 namespace WebBackgrounder.EntityFramework
@@ -28,24 +29,27 @@ namespace WebBackgrounder.EntityFramework
             private set;
         }
 
-        public override void Execute()
+        public override Task Execute()
         {
-            var count = _context.WorkItems.Count();
-            if (count > MaxWorkItemCount)
+            return new Task(() =>
             {
-                var oldest = (from workItem in _context.WorkItems
-                                orderby workItem.Started descending
-                                select workItem).Skip(MaxWorkItemCount).ToList();
-
-                if (oldest.Count > 0)
+                var count = _context.WorkItems.Count();
+                if (count > MaxWorkItemCount)
                 {
-                    foreach (var workItem in oldest)
+                    var oldest = (from workItem in _context.WorkItems
+                                    orderby workItem.Started descending
+                                    select workItem).Skip(MaxWorkItemCount).ToList();
+
+                    if (oldest.Count > 0)
                     {
-                        _context.WorkItems.Remove(workItem);
+                        foreach (var workItem in oldest)
+                        {
+                            _context.WorkItems.Remove(workItem);
+                        }
+                        _context.SaveChanges();
                     }
-                    _context.SaveChanges();
                 }
-            }
+            });
         }
     }
 }

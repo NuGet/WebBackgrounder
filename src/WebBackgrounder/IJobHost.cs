@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
@@ -8,6 +9,6 @@ namespace WebBackgrounder
     /// </summary>
     public interface IJobHost
     {
-        void DoWork(Action work);
+        void DoWork(Task work);
     }
 }

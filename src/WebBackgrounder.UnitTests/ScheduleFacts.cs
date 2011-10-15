@@ -41,9 +41,11 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsTheSpanBetweenNowAndNextRunTimeFiguringInLastRun()
             {
+                var now = DateTime.UtcNow;
+                
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromSeconds(30));
-                var schedule = new Schedule(job.Object) { LastRunTime = DateTime.UtcNow.AddSeconds(-20)};
+                var schedule = new Schedule(job.Object, () => now) { LastRunTime = now.AddSeconds(-20)};
 
                 var interval = schedule.GetIntervalToNextRun();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
@@ -22,7 +23,7 @@ namespace WebBackgrounder
             private set;
         }
 
-        public abstract void Execute();
+        public abstract Task Execute();
 
         public TimeSpan Interval 
         { 

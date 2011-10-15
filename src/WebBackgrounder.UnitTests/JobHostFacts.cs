@@ -13,25 +13,32 @@ namespace WebBackgrounder.UnitTests
             public void EnsuresNoWorkIsDone()
             {
                 var host = new JobHost();
-                Action work = () => { throw new InvalidOperationException("Hey, this is supposed to be shut down!"); };
+                var task = new Task(() => { throw new InvalidOperationException("Hey, this is supposed to be shut down!"); });
 
                 host.Stop(true);
 
-                host.DoWork(work);
+                host.DoWork(task);
             }
 
             [Fact]
             public void WaitsForTaskToComplete()
             {
                 var host = new JobHost();
-                var workTask = new Task(() => host.DoWork(() => Thread.Sleep(100)));
+                var workTask = new Task(() => host.DoWork(new Task(() =>
+                {
+                    // Was getting inconsistent results with Thread.Sleep(100)
+                    for (int i = 0; i < 100; i++)
+                    {
+                        Thread.Sleep(1);
+                    }
+                })));
                 var beforeStop = DateTime.UtcNow;
                 workTask.Start();
                 while (workTask.Status != TaskStatus.Running)
                 {
                     Thread.Sleep(1);
                 }
-
+                
                 host.Stop(false);
                 var afterStop = DateTime.UtcNow;
 

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using System.Web.Hosting;
 
 namespace WebBackgrounder
 {
     public class JobHost : IJobHost, IRegisteredObject
     {
-        private readonly object _lock = new object();
-        private bool _shuttingDown;
+        readonly object _lock = new object();
+        bool _shuttingDown;
 
         public JobHost()
         {
@@ -19,9 +19,10 @@ namespace WebBackgrounder
             {
                 _shuttingDown = true;
             }
+            HostingEnvironment.UnregisterObject(this);
         }
 
-        public void DoWork(Action work)
+        public void DoWork(Task work)
         {
             lock (_lock)
             {
@@ -29,7 +30,13 @@ namespace WebBackgrounder
                 {
                     return;
                 }
-                work();
+                work.Start();
+                // Need to hold the lock until the task completes.
+                // Later on, we should take advantage of the fact that the work is represented 
+                // by a task. Instead of locking, we could simply have the Stop method cancel 
+                // any pending tasks.
+                work.Wait();
+                            
             }
         }
     }

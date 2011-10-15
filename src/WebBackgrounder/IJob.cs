@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
@@ -9,11 +10,7 @@ namespace WebBackgrounder
         /// </summary>
         string Name { get; }
 
-        /// <summary>
-        /// Executes the task
-        /// </summary>
-        /// <returns></returns>
-        void Execute();
+        Task Execute();
 
         /// <summary>
         /// Interval in milliseconds.

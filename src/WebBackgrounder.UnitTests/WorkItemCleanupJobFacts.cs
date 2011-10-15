@@ -24,8 +24,9 @@ namespace WebBackgrounder.UnitTests
                     new WorkItem {Id = 104, Started = DateTime.UtcNow}, 
                 };
                 var job = new WorkItemCleanupJob(2, TimeSpan.FromSeconds(1), context.Object);
-
-                job.Execute();
+                var task = job.Execute();
+                task.Start();
+                task.Wait();
 
                 Assert.Equal(2, context.Object.WorkItems.Count());
                 Assert.Equal(101, context.Object.WorkItems.First().Id);

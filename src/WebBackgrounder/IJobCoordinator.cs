@@ -1,11 +1,13 @@
-﻿namespace WebBackgrounder
+﻿using System.Threading.Tasks;
+
+namespace WebBackgrounder
 {
     public interface IJobCoordinator
     {
         /// <summary>
-        /// Coordinates the work to be done and then does the work if necessary.
+        /// Coordinates the work to be done and returns a task embodying that work.
         /// </summary>
         /// <param name="job"></param>
-        void PerformWork(IJob job);
+        Task PerformWork(IJob job);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WebBackgrounder.DemoWeb
 {
@@ -9,9 +10,9 @@ namespace WebBackgrounder.DemoWeb
         {
         }
 
-        public override void Execute()
+        public override Task Execute()
         {
-            Thread.Sleep(3000);
+            return new Task(() => Thread.Sleep(3000));
         }
     }
 }
