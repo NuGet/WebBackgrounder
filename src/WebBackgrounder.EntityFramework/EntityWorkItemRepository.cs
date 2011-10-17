@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Transactions;
 using WebBackgrounder.EntityFramework.Entities;
@@ -7,22 +8,29 @@ namespace WebBackgrounder.EntityFramework
 {
     public class EntityWorkItemRepository : IWorkItemRepository
     {
-        WorkItemsContext _context;
+        Func<IWorkItemsContext> _contextThunk;
+        IWorkItemsContext _context;
 
-        public EntityWorkItemRepository(Func<WorkItemsContext> contextThunk)
+        public EntityWorkItemRepository(Func<IWorkItemsContext> contextThunk)
         {
-            _context = contextThunk();
+            _contextThunk = contextThunk;
+            _context = _contextThunk();
         }
 
         public void RunInTransaction(Action query)
         {
             using (var transaction = new TransactionScope())
             {
-                _context.Connection.Open();
+                // For some reason, I get different behavior when I use this
+                // instead of _context.Database.Connection. This works, that doesn't. :(
+                ((IObjectContextAdapter)_context).ObjectContext.Connection.Open();
                 query();
                 transaction.Complete();
             }
-            _context = new WorkItemsContext();
+            // REVIEW: Make sure this is really needed. I kept running into 
+            // exceptions when I didn't do this, but I may be doing it wrong. -Phil 10/17/2011
+            _context.Dispose();
+            _context = _contextThunk();
         }
 
         public bool AnyActiveWorker(string jobName)
@@ -76,6 +84,15 @@ namespace WebBackgrounder.EntityFramework
         private WorkItem GetWorkItem(long workerId)
         {
             return _context.WorkItems.Find(workerId);
+        }
+
+        public void Dispose()
+        {
+            var context = _context;
+            if (context != null)
+            {
+                context.Dispose();
+            }
         }
     }
 }

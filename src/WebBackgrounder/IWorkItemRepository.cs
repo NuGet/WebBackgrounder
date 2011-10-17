@@ -2,7 +2,7 @@
 
 namespace WebBackgrounder
 {
-    public interface IWorkItemRepository
+    public interface IWorkItemRepository : IDisposable
     {
         void RunInTransaction(Action query);
         bool AnyActiveWorker(string jobName);

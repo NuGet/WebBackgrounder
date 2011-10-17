@@ -10,16 +10,16 @@ namespace WebBackgrounder.DemoWeb.App_Start
 {
     public static class WebBackgrounderSetup
     {
-        private static readonly JobManager Manager = CreateJobWorkersManager();
+        private static readonly JobManager _jobManager = CreateJobWorkersManager();
 
         public static void Start()
         {
-            Manager.Start();
+            _jobManager.Start();
         }
 
         public static void Shutdown()
         {
-            Manager.Stop();
+            _jobManager.Dispose();
         }
 
         private static JobManager CreateJobWorkersManager()
@@ -27,7 +27,7 @@ namespace WebBackgrounder.DemoWeb.App_Start
             var jobs = new IJob[]
             {
                 new SampleJob(TimeSpan.FromSeconds(5)),
-                new WorkItemCleanupJob(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1), new WorkItemsContext())
+                new WorkItemCleanupJob(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(5), new WorkItemsContext())
             };
 
             var coordinator = new WebFarmJobCoordinator(new EntityWorkItemRepository(() => new WorkItemsContext()));

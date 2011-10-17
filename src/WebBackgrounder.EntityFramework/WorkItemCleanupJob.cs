@@ -9,7 +9,8 @@ namespace WebBackgrounder.EntityFramework
     {
         readonly WorkItemsContext _context;
 
-        public WorkItemCleanupJob(TimeSpan interval, TimeSpan spanToKeepRecords, WorkItemsContext context) : base("WorkItem Table Cleanup", interval)
+        public WorkItemCleanupJob(TimeSpan interval, TimeSpan spanToKeepRecords, WorkItemsContext context)
+            : base("WorkItem Table Cleanup", interval)
         {
             if (spanToKeepRecords < TimeSpan.Zero)
             {
@@ -25,7 +26,7 @@ namespace WebBackgrounder.EntityFramework
         /// </summary>
         public TimeSpan SpanToKeepRecords
         {
-            get; 
+            get;
             private set;
         }
 
@@ -33,7 +34,8 @@ namespace WebBackgrounder.EntityFramework
         {
             return new Task(() =>
             {
-                var oldItems = _context.WorkItems.Where(w => w.Completed != null && w.Completed < DateTime.UtcNow.Subtract(SpanToKeepRecords));
+                var cutoffDate = DateTime.UtcNow.Subtract(SpanToKeepRecords);
+                var oldItems = _context.WorkItems.Where(w => w.Completed != null && w.Completed < cutoffDate);
                 if (oldItems.Any())
                 {
                     foreach (var workItem in oldItems.ToList())

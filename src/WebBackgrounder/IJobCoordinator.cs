@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
-    public interface IJobCoordinator
+    public interface IJobCoordinator : IDisposable
     {
         /// <summary>
         /// Coordinates the work to be done and returns a task embodying that work.

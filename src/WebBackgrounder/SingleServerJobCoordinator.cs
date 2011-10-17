@@ -1,4 +1,4 @@
-﻿ using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
@@ -7,6 +7,10 @@ namespace WebBackgrounder
         public Task PerformWork(IJob job)
         {
             return job.Execute();
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

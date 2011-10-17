@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\IWorkItemsContext.cs" />
     <Compile Include="Entities\WorkItem.cs" />
     <Compile Include="Entities\WorkItemsContext.cs" />
     <Compile Include="EntityWorkItemRepository.cs" />

@@ -79,6 +79,7 @@ namespace WebBackgrounder
         {
             Stop();
             _timer.Dispose();
+            _coordinator.Dispose();
         }
 
         public void Fail(Action<Exception> failHandler)

@@ -33,7 +33,7 @@ This site is used to test and demonstrate WebBackgrounder
             @Html.DisplayFor(modelItem => item.JobName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.WorkerId)
+            <span title="@item.WorkerId">@item.WorkerId.ToString().Substring(0, 8)</span>
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Started)

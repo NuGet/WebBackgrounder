@@ -69,5 +69,14 @@ namespace WebBackgrounder
             }
             return new JobUnitOfWork(_workItemRepository, workItemId.Value);
         }
+
+        public void Dispose()
+        {
+            var repository = _workItemRepository;
+            if (repository != null)
+            {
+                repository.Dispose();
+            }
+        }
     }
 }
