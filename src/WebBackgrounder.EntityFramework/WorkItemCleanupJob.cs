@@ -9,13 +9,13 @@ namespace WebBackgrounder.EntityFramework
     {
         readonly WorkItemsContext _context;
 
-        public WorkItemCleanupJob(int maxWorkItemCount, TimeSpan interval, WorkItemsContext context) : base("WorkItem Table Cleanup", interval)
+        public WorkItemCleanupJob(TimeSpan interval, TimeSpan spanToKeepRecords, WorkItemsContext context) : base("WorkItem Table Cleanup", interval)
         {
-            if (maxWorkItemCount < 2)
+            if (spanToKeepRecords < TimeSpan.Zero)
             {
-                throw new ArgumentException("Need to have at least two work items, one for this job and one for another.", "maxWorkItemCount");
+                throw new ArgumentException("Need to specify a positive time span.", "spanToKeepRecords");
             }
-            MaxWorkItemCount = maxWorkItemCount;
+            SpanToKeepRecords = spanToKeepRecords;
             _context = context;
         }
 
@@ -23,7 +23,7 @@ namespace WebBackgrounder.EntityFramework
         /// When this number is reached, this task will delete the oldest 
         /// work items larger than this number.
         /// </summary>
-        public int MaxWorkItemCount
+        public TimeSpan SpanToKeepRecords
         {
             get; 
             private set;
@@ -33,21 +33,14 @@ namespace WebBackgrounder.EntityFramework
         {
             return new Task(() =>
             {
-                var count = _context.WorkItems.Count();
-                if (count > MaxWorkItemCount)
+                var oldItems = _context.WorkItems.Where(w => w.Completed != null && w.Completed < DateTime.UtcNow.Subtract(SpanToKeepRecords));
+                if (oldItems.Any())
                 {
-                    var oldest = (from workItem in _context.WorkItems
-                                    orderby workItem.Started descending
-                                    select workItem).Skip(MaxWorkItemCount).ToList();
-
-                    if (oldest.Count > 0)
+                    foreach (var workItem in oldItems.ToList())
                     {
-                        foreach (var workItem in oldest)
-                        {
-                            _context.WorkItems.Remove(workItem);
-                        }
-                        _context.SaveChanges();
+                        _context.WorkItems.Remove(workItem);
                     }
+                    _context.SaveChanges();
                 }
             });
         }

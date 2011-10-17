@@ -12,36 +12,37 @@ namespace WebBackgrounder.UnitTests
         public class TheExecuteMethod
         {
             [Fact]
-            public void DeletesItemsBeyondMaxCount()
+            public void DeletesItemsOlderThanSpecifiedTimeSpan()
             {
                 var context = new Mock<WorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Verifiable();
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem>
                 {
-                    new WorkItem {Id = 101, Started = DateTime.UtcNow.AddMinutes(-1)}, 
-                    new WorkItem {Id = 102, Started = DateTime.UtcNow.AddMinutes(-2)}, 
-                    new WorkItem {Id = 103, Started = DateTime.UtcNow.AddMinutes(-3)}, 
-                    new WorkItem {Id = 104, Started = DateTime.UtcNow}, 
+                    new WorkItem {Id = 101, Completed = DateTime.UtcNow.AddDays(-4)}, 
+                    new WorkItem {Id = 102, Completed = DateTime.UtcNow.AddDays(-4)}, 
+                    new WorkItem {Id = 103, Completed = DateTime.UtcNow.AddDays(-2)}, 
+                    new WorkItem {Id = 104, Completed = DateTime.UtcNow}, 
+                    new WorkItem {Id = 105 }
                 };
-                var job = new WorkItemCleanupJob(2, TimeSpan.FromSeconds(1), context.Object);
+                var job = new WorkItemCleanupJob(TimeSpan.FromSeconds(1), TimeSpan.FromDays(2), context.Object);
                 var task = job.Execute();
                 task.Start();
                 task.Wait();
 
                 Assert.Equal(2, context.Object.WorkItems.Count());
-                Assert.Equal(101, context.Object.WorkItems.First().Id);
-                Assert.Equal(104, context.Object.WorkItems.ElementAt(1).Id);
+                Assert.Equal(104, context.Object.WorkItems.First().Id);
+                Assert.Equal(105, context.Object.WorkItems.ElementAt(1).Id);
                 context.Verify();
             }
 
             [Fact]
-            public void DoesNothingWhenRecordCountLessThanMaxCount()
+            public void DoesNothingWhenAllRecordsAreWithinKeepRecordsSpan()
             {
                 var context = new Mock<WorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Throws(
                     new InvalidOperationException("Should not have tried to save changes"));
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem> { new WorkItem(), new WorkItem() };
-                var job = new WorkItemCleanupJob(2, TimeSpan.FromSeconds(1), context.Object);
+                var job = new WorkItemCleanupJob(TimeSpan.FromSeconds(1), TimeSpan.FromDays(1), context.Object);
 
                 job.Execute();
             }

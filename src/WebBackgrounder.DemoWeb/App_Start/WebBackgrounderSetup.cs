@@ -27,7 +27,7 @@ namespace WebBackgrounder.DemoWeb.App_Start
             var jobs = new IJob[]
             {
                 new SampleJob(TimeSpan.FromSeconds(5)),
-                new WorkItemCleanupJob(10, TimeSpan.FromSeconds(10), new WorkItemsContext())
+                new WorkItemCleanupJob(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1), new WorkItemsContext())
             };
 
             Func<string, IWorkItemRepository> repositoryThunk = jobname => new EntityWorkItemRepository(jobname, () => new WorkItemsContext());
