@@ -5,8 +5,8 @@ namespace WebBackgrounder
     public interface IWorkItemRepository
     {
         void RunInTransaction(Action query);
-        bool AnyActiveWorker { get; }
-        long CreateWorkItem(string workerId);
+        bool AnyActiveWorker(string jobName);
+        long CreateWorkItem(string workerId, string jobName);
         void SetWorkItemCompleted(long workItemId);
         void SetWorkItemFailed(long workItemId, Exception exception);
     }

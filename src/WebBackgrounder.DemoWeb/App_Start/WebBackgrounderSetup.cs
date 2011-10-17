@@ -30,8 +30,7 @@ namespace WebBackgrounder.DemoWeb.App_Start
                 new WorkItemCleanupJob(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1), new WorkItemsContext())
             };
 
-            Func<string, IWorkItemRepository> repositoryThunk = jobname => new EntityWorkItemRepository(jobname, () => new WorkItemsContext());
-            var coordinator = new WebFarmJobCoordinator(repositoryThunk);
+            var coordinator = new WebFarmJobCoordinator(new EntityWorkItemRepository(() => new WorkItemsContext()));
             var manager = new JobManager(jobs, coordinator);
             manager.Fail(e => ErrorSignal.FromCurrentContext().Raise(e));
             return manager;

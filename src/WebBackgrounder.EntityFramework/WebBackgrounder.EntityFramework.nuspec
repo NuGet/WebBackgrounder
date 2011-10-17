@@ -10,7 +10,9 @@
     <projectUrl>https://github.com/NuGet/WebBackgrounder</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes></releaseNotes>
+    <releaseNotes>
+        Updated this to take into account API changes in WebBackgrounder.
+    </releaseNotes>
     <tags>aspnet threading background tasks jobs scheduled scheduling workers asp.net sql entity-framework database db</tags>
   </metadata>
 </package>

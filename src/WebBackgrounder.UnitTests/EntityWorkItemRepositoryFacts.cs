@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
+using Moq;
 using WebBackgrounder.EntityFramework;
 using WebBackgrounder.EntityFramework.Entities;
 using Xunit;
-using Moq;
 
 namespace WebBackgrounder.UnitTests
 {
@@ -18,16 +18,16 @@ namespace WebBackgrounder.UnitTests
                 var workItems = new InMemoryDbSet<WorkItem> {
                     new WorkItem
                     {
-                        JobName = "docoolstuff", 
+                        JobName = "docoolstuffjobname", 
                         Started = DateTime.UtcNow, 
                         Completed = null
                     }
                 };
                 var context = new Mock<WorkItemsContext>();
                 context.Object.WorkItems = workItems;
-                var repository = new EntityWorkItemRepository("docoolstuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker;
+                bool anyActive = repository.AnyActiveWorker("docoolstuffjobname");
 
                 Assert.True(anyActive);
             }
@@ -44,9 +44,9 @@ namespace WebBackgrounder.UnitTests
                 };
                 var context = new Mock<WorkItemsContext>();
                 context.Object.WorkItems = workItems;
-                var repository = new EntityWorkItemRepository("docoolstuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker;
+                bool anyActive = repository.AnyActiveWorker("docoolstuff");
 
                 Assert.False(anyActive);
             }
@@ -63,9 +63,9 @@ namespace WebBackgrounder.UnitTests
                 };
                 var context = new Mock<WorkItemsContext>();
                 context.Object.WorkItems = workItems;
-                var repository = new EntityWorkItemRepository("docoolstuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker;
+                bool anyActive = repository.AnyActiveWorker("docoolstuff");
 
                 Assert.False(anyActive);
             }
@@ -79,9 +79,9 @@ namespace WebBackgrounder.UnitTests
                 var context = new Mock<WorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Verifiable();
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem>();
-                var repository = new EntityWorkItemRepository("do-cool-stuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
-                repository.CreateWorkItem("web-server-1");
+                repository.CreateWorkItem("web-server-1", "do-cool-stuff");
 
                 var created = context.Object.WorkItems.First(w => w.WorkerId == "web-server-1");
                 Assert.NotNull(created);
@@ -103,7 +103,7 @@ namespace WebBackgrounder.UnitTests
                 var workItems = new Mock<IDbSet<WorkItem>>();
                 workItems.Setup(w => w.Find(workItemId)).Returns(workItem);
                 context.Object.WorkItems = workItems.Object;
-                var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
                 repository.SetWorkItemCompleted(workItemId);
 
@@ -118,7 +118,7 @@ namespace WebBackgrounder.UnitTests
                 workItems.Setup(w => w.Find(It.IsAny<long>())).Returns(new WorkItem());
                 context.Object.WorkItems = workItems.Object;
                 context.Setup(c => c.SaveChanges()).Verifiable();
-                var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
                 repository.SetWorkItemCompleted(123);
 
@@ -137,7 +137,7 @@ namespace WebBackgrounder.UnitTests
                 var workItems = new Mock<IDbSet<WorkItem>>();
                 workItems.Setup(w => w.Find(workItemId)).Returns(workItem);
                 context.Object.WorkItems = workItems.Object;
-                var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
                 repository.SetWorkItemFailed(workItemId, new InvalidOperationException("Pretend failure!"));
 
@@ -153,14 +153,12 @@ namespace WebBackgrounder.UnitTests
                 workItems.Setup(w => w.Find(It.IsAny<long>())).Returns(new WorkItem());
                 context.Object.WorkItems = workItems.Object;
                 context.Setup(c => c.SaveChanges()).Verifiable();
-                var repository = new EntityWorkItemRepository("do stuff", () => context.Object);
+                var repository = new EntityWorkItemRepository(() => context.Object);
 
                 repository.SetWorkItemFailed(123, new InvalidOperationException());
 
                 context.Verify();
             }
-
-
         }
     }
 }

@@ -8,12 +8,10 @@ namespace WebBackgrounder.EntityFramework
     public class EntityWorkItemRepository : IWorkItemRepository
     {
         WorkItemsContext _context;
-        readonly string _jobName;
 
-        public EntityWorkItemRepository(string jobName, Func<WorkItemsContext> contextThunk)
+        public EntityWorkItemRepository(Func<WorkItemsContext> contextThunk)
         {
             _context = contextThunk();
-            _jobName = jobName;
         }
 
         public void RunInTransaction(Action query)
@@ -27,33 +25,30 @@ namespace WebBackgrounder.EntityFramework
             _context = new WorkItemsContext();
         }
 
-        public bool AnyActiveWorker
+        public bool AnyActiveWorker(string jobName)
         {
-            get
+            var activeWorker = GetActiveWorkItem(jobName);
+            if (activeWorker != null)
             {
-                var activeWorker = GetActiveWorkItem();
-                if (activeWorker != null)
-                {
-                    // TODO: Handle work item expiration.
-                    return true;
-                }
-                return false;
+                // TODO: Handle work item expiration.
+                return true;
             }
+            return false;
         }
 
-        private WorkItem GetActiveWorkItem()
+        private WorkItem GetActiveWorkItem(string jobName)
         {
             return (from w in _context.WorkItems
-                    where w.JobName == _jobName
+                    where w.JobName == jobName
                           && w.Completed == null
                     select w).FirstOrDefault();
         }
 
-        public long CreateWorkItem(string workerId)
+        public long CreateWorkItem(string workerId, string jobName)
         {
             var workItem = new WorkItem
             {
-                JobName = _jobName,
+                JobName = jobName,
                 WorkerId = workerId,
                 Started = DateTime.UtcNow,
                 Completed = null

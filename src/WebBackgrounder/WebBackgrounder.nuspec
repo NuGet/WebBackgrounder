@@ -10,7 +10,9 @@
     <projectUrl>https://github.com/NuGet/WebBackgrounder</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes></releaseNotes>
+    <releaseNotes>
+        Refactored the IWorkItemRepository interface to be stateless.
+    </releaseNotes>
     <tags>aspnet threading background tasks jobs scheduled scheduling workers asp.net</tags>
   </metadata>
 </package>

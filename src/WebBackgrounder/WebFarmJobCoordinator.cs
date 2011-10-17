@@ -9,19 +9,17 @@ namespace WebBackgrounder
     public class WebFarmJobCoordinator : IJobCoordinator
     {
         readonly static string WorkerId = Guid.NewGuid().ToString();
-        readonly Func<string, IWorkItemRepository> _repositoryThunk;
+        readonly IWorkItemRepository _workItemRepository;
 
-        public WebFarmJobCoordinator(Func<string, IWorkItemRepository> repositoryThunk)
+        public WebFarmJobCoordinator(IWorkItemRepository workItemRepository)
         {
-            _repositoryThunk = repositoryThunk;
+            _workItemRepository = workItemRepository;
         }
 
         public Task PerformWork(IJob job)
         {
             // We need a new instance every time we perform work.
-            var repository = _repositoryThunk(job.Name);
-
-            var unitOfWork = ReserveWork(repository, WorkerId);
+            var unitOfWork = ReserveWork(WorkerId, job.Name);
             if (unitOfWork == null)
             {
                 return null;
@@ -43,25 +41,25 @@ namespace WebBackgrounder
             return task;
         }
 
-        public JobUnitOfWork ReserveWork(IWorkItemRepository repository, string workerId)
+        public JobUnitOfWork ReserveWork(string workerId, string jobName)
         {
             long? workItemId = null;
 
             // We do a double check here because this is the first query we run and 
             // a database can't be created inside a transaction scope.
-            if (repository.AnyActiveWorker)
+            if (_workItemRepository.AnyActiveWorker(jobName))
             {
                 return null;
             }
 
-            repository.RunInTransaction(() =>
+            _workItemRepository.RunInTransaction(() =>
                 {
-                    if (repository.AnyActiveWorker)
+                    if (_workItemRepository.AnyActiveWorker(jobName))
                     {
                         workItemId = null;
                         return;
                     }
-                    workItemId = repository.CreateWorkItem(workerId);
+                    workItemId = _workItemRepository.CreateWorkItem(workerId, jobName);
                 }
             );
 
@@ -69,8 +67,7 @@ namespace WebBackgrounder
             {
                 return null;
             }
-            return new JobUnitOfWork(repository, workItemId.Value);
+            return new JobUnitOfWork(_workItemRepository, workItemId.Value);
         }
-
     }
 }
