@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
 
-namespace WebBackgrounder.EntityFramework.Entities
+namespace WebBackgrounder
 {
     public class WorkItemsContext : DbContext, IWorkItemsContext
     {

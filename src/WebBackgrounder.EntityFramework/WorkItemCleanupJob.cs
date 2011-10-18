@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using WebBackgrounder.EntityFramework.Entities;
 
-namespace WebBackgrounder.EntityFramework
+namespace WebBackgrounder.Jobs
 {
     public class WorkItemCleanupJob : Job
     {
-        readonly WorkItemsContext _context;
+        readonly IWorkItemsContext _context;
 
-        public WorkItemCleanupJob(TimeSpan interval, TimeSpan spanToKeepRecords, WorkItemsContext context)
+        public WorkItemCleanupJob(TimeSpan interval, TimeSpan spanToKeepRecords, IWorkItemsContext context)
             : base("WorkItem Table Cleanup", interval)
         {
             if (spanToKeepRecords < TimeSpan.Zero)

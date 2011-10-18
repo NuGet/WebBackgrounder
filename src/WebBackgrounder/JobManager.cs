@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace WebBackgrounder
@@ -10,6 +11,7 @@ namespace WebBackgrounder
         readonly Timer _timer;
         readonly IJobCoordinator _coordinator;
         readonly Scheduler _scheduler;
+        readonly IEnumerable<IJob> _jobs;
         Action<Exception> _failHandler;
 
         public JobManager(IEnumerable<IJob> jobs, IJobHost host)
@@ -37,6 +39,7 @@ namespace WebBackgrounder
                 throw new ArgumentNullException("coordinator");
             }
 
+            _jobs = jobs;
             _scheduler = new Scheduler(jobs);
             _host = host;
             _coordinator = coordinator;
@@ -78,6 +81,10 @@ namespace WebBackgrounder
         public void Dispose()
         {
             Stop();
+            foreach (var job in _jobs.OfType<IDisposable>())
+            {
+                job.Dispose();
+            }
             _timer.Dispose();
             _coordinator.Dispose();
         }

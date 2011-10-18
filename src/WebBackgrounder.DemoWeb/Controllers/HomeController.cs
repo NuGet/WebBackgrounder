@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
-using WebBackgrounder.EntityFramework.Entities;
 
 namespace WebBackgrounder.DemoWeb.Controllers
 {

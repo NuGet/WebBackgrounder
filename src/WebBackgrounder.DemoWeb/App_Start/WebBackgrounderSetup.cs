@@ -1,7 +1,6 @@
 ﻿using System;
 using Elmah;
-using WebBackgrounder.EntityFramework;
-using WebBackgrounder.EntityFramework.Entities;
+using WebBackgrounder.Jobs;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Shutdown")]

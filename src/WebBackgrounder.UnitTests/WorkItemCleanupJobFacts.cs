@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Moq;
-using WebBackgrounder.EntityFramework;
-using WebBackgrounder.EntityFramework.Entities;
+using WebBackgrounder.Jobs;
 using Xunit;
 
 namespace WebBackgrounder.UnitTests
@@ -14,16 +13,16 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void DeletesItemsOlderThanSpecifiedTimeSpan()
             {
-                var context = new Mock<WorkItemsContext>();
+                var context = new Mock<IWorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Verifiable();
-                context.Object.WorkItems = new InMemoryDbSet<WorkItem>
+                context.Setup(c => c.WorkItems).Returns(new InMemoryDbSet<WorkItem>
                 {
                     new WorkItem {Id = 101, Completed = DateTime.UtcNow.AddDays(-4)}, 
                     new WorkItem {Id = 102, Completed = DateTime.UtcNow.AddDays(-4)}, 
                     new WorkItem {Id = 103, Completed = DateTime.UtcNow.AddDays(-2)}, 
                     new WorkItem {Id = 104, Completed = DateTime.UtcNow}, 
                     new WorkItem {Id = 105 }
-                };
+                });
                 var job = new WorkItemCleanupJob(TimeSpan.FromSeconds(1), TimeSpan.FromDays(2), context.Object);
                 var task = job.Execute();
                 task.Start();
@@ -38,7 +37,7 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void DoesNothingWhenAllRecordsAreWithinKeepRecordsSpan()
             {
-                var context = new Mock<WorkItemsContext>();
+                var context = new Mock<IWorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Throws(
                     new InvalidOperationException("Should not have tried to save changes"));
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem> { new WorkItem(), new WorkItem() };

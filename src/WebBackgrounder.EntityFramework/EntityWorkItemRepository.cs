@@ -2,11 +2,10 @@
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Transactions;
-using WebBackgrounder.EntityFramework.Entities;
 
-namespace WebBackgrounder.EntityFramework
+namespace WebBackgrounder
 {
-    public class EntityWorkItemRepository : IWorkItemRepository
+    public class EntityWorkItemRepository : IWorkItemRepository, IDisposable
     {
         Func<IWorkItemsContext> _contextThunk;
         IWorkItemsContext _context;

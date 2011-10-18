@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace WebBackgrounder.EntityFramework.Entities {
-    public class WorkItem {
+namespace WebBackgrounder
+{
+    public class WorkItem
+    {
         public long Id { get; set; }
         [StringLength(64)]
         public string JobName { get; set; }

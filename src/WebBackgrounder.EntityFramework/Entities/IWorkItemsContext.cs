@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 
-namespace WebBackgrounder.EntityFramework.Entities
+namespace WebBackgrounder
 {
     public interface IWorkItemsContext : IDisposable
     {

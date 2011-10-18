@@ -2,8 +2,6 @@
 using System.Data.Entity;
 using System.Linq;
 using Moq;
-using WebBackgrounder.EntityFramework;
-using WebBackgrounder.EntityFramework.Entities;
 using Xunit;
 
 namespace WebBackgrounder.UnitTests
@@ -15,7 +13,8 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsTrueWhenAWorkerHasNoCompletedDate()
             {
-                var workItems = new InMemoryDbSet<WorkItem> {
+                var workItems = new InMemoryDbSet<WorkItem> 
+                {
                     new WorkItem
                     {
                         JobName = "docoolstuffjobname", 
@@ -35,7 +34,9 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsFalseWhenAllWorkItemsHaveCompletedDate()
             {
-                var workItems = new InMemoryDbSet<WorkItem> {new WorkItem
+                var workItems = new InMemoryDbSet<WorkItem> 
+                {
+                    new WorkItem
                     {
                         JobName = "docoolstuff", 
                         Started = DateTime.UtcNow, 
@@ -54,7 +55,9 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsFalseWhenNoWorkItemsReturnedForGivenJob()
             {
-                var workItems = new InMemoryDbSet<WorkItem> {new WorkItem
+                var workItems = new InMemoryDbSet<WorkItem> 
+                {
+                    new WorkItem
                     {
                         JobName = "douncoolstuff", 
                         Started = DateTime.UtcNow, 
