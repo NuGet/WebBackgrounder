@@ -41,7 +41,6 @@ namespace WebBackgrounder
                 // by a task. Instead of locking, we could simply have the Stop method cancel 
                 // any pending tasks.
                 work.Wait();
-
             }
         }
     }

@@ -33,8 +33,15 @@ namespace WebBackgrounder
             {
                 return null;
             }
-
-            var task = job.Execute();
+            Task task = null;
+            try
+            {
+                task = job.Execute();
+            }
+            catch (Exception e)
+            {
+                task = new Task(() => { throw e; });
+            }
             task.ContinueWith(c =>
             {
                 if (c.IsFaulted)
@@ -45,8 +52,8 @@ namespace WebBackgrounder
                 {
                     unitOfWork.Complete();
                 }
-
             });
+
             return task;
         }
 

@@ -61,7 +61,7 @@ namespace WebBackgrounder
             try
             {
                 _timer.Stop();
-                PerformTask();
+                DoNextJob();
                 _timer.Next(_scheduler.Next().Job.Interval); // Start up again.
             }
             catch (Exception e)
@@ -70,7 +70,7 @@ namespace WebBackgrounder
             }
         }
 
-        void PerformTask()
+        void DoNextJob()
         {
             using (var schedule = _scheduler.Next())
             {

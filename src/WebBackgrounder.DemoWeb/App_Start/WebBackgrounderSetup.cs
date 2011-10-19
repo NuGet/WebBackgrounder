@@ -33,6 +33,7 @@ namespace WebBackgrounder.DemoWeb.App_Start
             var jobs = new IJob[]
             {
                 new SampleJob(TimeSpan.FromSeconds(5)),
+                /* new ExceptionJob(TimeSpan.FromSeconds(15)), */
                 new WorkItemCleanupJob(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(5), new WorkItemsContext())
             };
 

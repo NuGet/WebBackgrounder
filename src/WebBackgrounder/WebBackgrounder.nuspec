@@ -11,7 +11,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-        Refactored the IWorkItemRepository interface to be stateless.
+        * 0.0.1.1 Refactored the IWorkItemRepository interface to be stateless.
+        * 0.0.1.4 Added more robust handling of badly behaving jobs (throwing exceptions).
     </releaseNotes>
     <tags>aspnet threading background tasks jobs scheduled scheduling workers asp.net</tags>
   </metadata>

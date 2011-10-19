@@ -24,8 +24,8 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsNullWhenActiveWorkersExistWithinTransaction()
             {
-                var repository = new Mock<IWorkItemRepository>();
                 var activeWorkerQueue = new Queue<bool>(new[] { false, true });
+                var repository = new Mock<IWorkItemRepository>();
                 repository.Setup(r => r.AnyActiveWorker("jobname")).Returns(activeWorkerQueue.Dequeue);
                 repository.Setup(r => r.AnyActiveWorker("jobname")).Returns(activeWorkerQueue.Dequeue);
                 repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
@@ -54,6 +54,22 @@ namespace WebBackgrounder.UnitTests
 
         public class TheGetWorkMethod
         {
+            [Fact]
+            public void WithJobThatThrowsExceptionWhenCreatingTaskStillReturnsTask()
+            {
+                var job = new Mock<IJob>();
+                job.Setup(j => j.Execute()).Throws(new InvalidOperationException("Test Exception"));
+                var repository = new Mock<IWorkItemRepository>();
+                repository.Setup(r => r.AnyActiveWorker("jobname")).Returns(false);
+                repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
+                repository.Setup(r => r.CreateWorkItem("worker-id", "jobname")).Returns(() => 123);
+                var coordinator = new WebFarmJobCoordinator(repository.Object);
+
+                var task = coordinator.GetWork(job.Object);
+
+                Assert.NotNull(task);
+            }
+
             [Fact]
             public void WithNullJobThrowsArgumentNullException()
             {

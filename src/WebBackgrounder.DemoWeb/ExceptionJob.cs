@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebBackgrounder.DemoWeb
 {
-    public class SampleJob : Job
+    public class ExceptionJob : Job
     {
-        public SampleJob(TimeSpan interval)
+        public ExceptionJob(TimeSpan interval)
             : base("Sample Job", interval)
         {
         }
 
         public override Task Execute()
         {
-            return new Task(() => Thread.Sleep(3000));
+            return new Task(() => { throw new InvalidOperationException("This is a test"); });
         }
     }
 }
