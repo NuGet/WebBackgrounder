@@ -74,7 +74,11 @@ namespace WebBackgrounder
         {
             using (var schedule = _scheduler.Next())
             {
-                _host.DoWork(_coordinator.PerformWork(schedule.Job));
+                var work = _coordinator.GetWork(schedule.Job);
+                if (work != null)
+                {
+                    _host.DoWork(work);
+                }
             }
         }
 

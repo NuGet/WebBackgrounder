@@ -4,7 +4,7 @@ namespace WebBackgrounder
 {
     public class SingleServerJobCoordinator : IJobCoordinator
     {
-        public Task PerformWork(IJob job)
+        public Task GetWork(IJob job)
         {
             return job.Execute();
         }

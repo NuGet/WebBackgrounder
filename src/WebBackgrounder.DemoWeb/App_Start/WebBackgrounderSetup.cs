@@ -2,7 +2,7 @@
 using Elmah;
 using WebBackgrounder.Jobs;
 
-[assembly: WebActivator.PreApplicationStartMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Start")]
+[assembly: WebActivator.PostApplicationStartMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethod(typeof(WebBackgrounder.DemoWeb.App_Start.WebBackgrounderSetup), "Shutdown")]
 
 namespace WebBackgrounder.DemoWeb.App_Start

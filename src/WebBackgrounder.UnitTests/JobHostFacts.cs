@@ -38,12 +38,25 @@ namespace WebBackgrounder.UnitTests
                 {
                     Thread.Sleep(1);
                 }
-                
+
                 host.Stop(false);
                 var afterStop = DateTime.UtcNow;
 
                 // If Stop didn't wait, we'd expect after to be less than 100 ms larger than beforeStop
                 Assert.True((afterStop - beforeStop).TotalMilliseconds >= 100);
+            }
+        }
+
+        public class TheDoWorkMethod
+        {
+            [Fact]
+            public void ThrowsArgumentNullExceptionIfWorkIsNull()
+            {
+                var host = new JobHost();
+
+                var exception = Assert.Throws<ArgumentNullException>(() => host.DoWork(null));
+
+                Assert.Equal("work", exception.ParamName);
             }
         }
     }

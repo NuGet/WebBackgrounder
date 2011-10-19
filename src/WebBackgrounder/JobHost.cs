@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Web.Hosting;
 
 namespace WebBackgrounder
@@ -24,6 +25,10 @@ namespace WebBackgrounder
 
         public void DoWork(Task work)
         {
+            if (work == null)
+            {
+                throw new ArgumentNullException("work");
+            }
             lock (_lock)
             {
                 if (_shuttingDown)
@@ -36,7 +41,7 @@ namespace WebBackgrounder
                 // by a task. Instead of locking, we could simply have the Stop method cancel 
                 // any pending tasks.
                 work.Wait();
-                            
+
             }
         }
     }

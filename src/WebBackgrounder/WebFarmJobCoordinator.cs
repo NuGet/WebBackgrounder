@@ -13,11 +13,20 @@ namespace WebBackgrounder
 
         public WebFarmJobCoordinator(IWorkItemRepository workItemRepository)
         {
+            if (workItemRepository == null)
+            {
+                throw new ArgumentNullException("workItemRepository");
+            }
             _workItemRepository = workItemRepository;
         }
 
-        public Task PerformWork(IJob job)
+        public Task GetWork(IJob job)
         {
+            if (job == null)
+            {
+                throw new ArgumentNullException("job");
+            }
+
             // We need a new instance every time we perform work.
             var unitOfWork = ReserveWork(WorkerId, job.Name);
             if (unitOfWork == null)
