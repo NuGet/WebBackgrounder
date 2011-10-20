@@ -44,22 +44,24 @@ namespace WebBackgrounder.UnitTests
             {
                 var jobOneEvent = new ManualResetEvent(initialState: false);
                 var jobTwoEvent = new ManualResetEvent(initialState: false);
-                DateTime jobDone = DateTime.MinValue;
-                DateTime anotherJobDone = DateTime.MinValue;
-                var job = new Mock<IJob>();
-                var anotherJob = new Mock<IJob>();
-                job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(10));
-                anotherJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
-                var jobs = new[] { job.Object, anotherJob.Object };
+                DateTime jobOneDone = DateTime.MinValue;
+                DateTime jobTwoDone = DateTime.MinValue;
+                var jobOne = new Mock<IJob>();
+                jobOne.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(10));
+                jobOne.Setup(j => j.Name).Returns("Job One");
+                var jobTwo = new Mock<IJob>();
+                jobTwo.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(8));
+                jobTwo.Setup(j => j.Name).Returns("Job Two");
+                var jobs = new[] { jobOne.Object, jobTwo.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() =>
+                coordinator.Setup(c => c.GetWork(jobOne.Object)).Returns(new Task(() =>
                 {
-                    jobDone = DateTime.UtcNow;
+                    jobOneDone = DateTime.UtcNow;
                     jobOneEvent.Set();
                 }));
-                coordinator.Setup(c => c.GetWork(anotherJob.Object)).Returns(new Task(() =>
+                coordinator.Setup(c => c.GetWork(jobTwo.Object)).Returns(new Task(() =>
                 {
-                    anotherJobDone = DateTime.UtcNow;
+                    jobTwoDone = DateTime.UtcNow;
                     jobTwoEvent.Set();
                 }));
 
@@ -70,9 +72,9 @@ namespace WebBackgrounder.UnitTests
                     Assert.True(jobTwoEvent.WaitOne(timeout: TimeSpan.FromSeconds(4)));
                 }
 
-                Assert.True(jobDone > DateTime.MinValue);
-                Assert.True(anotherJobDone > DateTime.MinValue);
-                Assert.True(anotherJobDone < jobDone);
+                Assert.True(jobOneDone > DateTime.MinValue);
+                Assert.True(jobTwoDone > DateTime.MinValue);
+                Assert.True(jobTwoDone < jobOneDone);
             }
 
             [Fact]

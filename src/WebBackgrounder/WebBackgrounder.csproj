@@ -60,7 +60,9 @@
     <Compile Include="WebFarmJobCoordinator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="WebBackgrounder.nuspec" />
+    <None Include="WebBackgrounder.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />

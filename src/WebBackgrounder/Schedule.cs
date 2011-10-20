@@ -6,7 +6,8 @@ namespace WebBackgrounder
     {
         readonly Func<DateTime> _nowThunk;
 
-        public Schedule(IJob job) : this(job, () => DateTime.UtcNow)
+        public Schedule(IJob job)
+            : this(job, () => DateTime.UtcNow)
         {
         }
 
