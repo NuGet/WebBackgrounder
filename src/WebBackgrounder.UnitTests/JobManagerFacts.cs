@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -24,25 +25,25 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void GetsTheJobDone()
             {
-                bool jobDone = false;
+                var resetEvent = new ManualResetEvent(initialState: false);
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
                 var jobs = new[] { job.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => jobDone = true));
+                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => resetEvent.Set()));
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Start();
-                    WaitForConditionOrTimeout(() => jobDone, TimeSpan.FromSeconds(2));
+                    Assert.True(resetEvent.WaitOne(timeout: TimeSpan.FromSeconds(2)));
                 }
-
-                Assert.True(jobDone);
             }
 
             [Fact]
             public void GetsTheJobsDoneInTheRightOrder()
             {
+                var jobOneEvent = new ManualResetEvent(initialState: false);
+                var jobTwoEvent = new ManualResetEvent(initialState: false);
                 DateTime jobDone = DateTime.MinValue;
                 DateTime anotherJobDone = DateTime.MinValue;
                 var job = new Mock<IJob>();
@@ -51,13 +52,22 @@ namespace WebBackgrounder.UnitTests
                 anotherJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
                 var jobs = new[] { job.Object, anotherJob.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => jobDone = DateTime.UtcNow));
-                coordinator.Setup(c => c.GetWork(anotherJob.Object)).Returns(new Task(() => anotherJobDone = DateTime.UtcNow));
+                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() =>
+                {
+                    jobDone = DateTime.UtcNow;
+                    jobOneEvent.Set();
+                }));
+                coordinator.Setup(c => c.GetWork(anotherJob.Object)).Returns(new Task(() =>
+                {
+                    anotherJobDone = DateTime.UtcNow;
+                    jobTwoEvent.Set();
+                }));
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Start();
-                    WaitForConditionOrTimeout(() => jobDone > DateTime.MinValue, TimeSpan.FromSeconds(2));
+                    Assert.True(jobOneEvent.WaitOne(timeout: TimeSpan.FromSeconds(4)));
+                    Assert.True(jobTwoEvent.WaitOne(timeout: TimeSpan.FromSeconds(4)));
                 }
 
                 Assert.True(jobDone > DateTime.MinValue);
@@ -71,31 +81,19 @@ namespace WebBackgrounder.UnitTests
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
                 var jobs = new[] { job.Object };
+                var jobCalledEvent = new ManualResetEvent(initialState: false);
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns((Task)null);
-
+                coordinator.Setup(c => c.GetWork(job.Object)).Returns((Task)null).Callback(() => jobCalledEvent.Set());
                 bool failed = false;
+
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Fail(e => failed = true);
                     manager.Start();
-                    WaitForConditionOrTimeout(() => failed, TimeSpan.FromSeconds(2));
+                    Assert.True(jobCalledEvent.WaitOne(timeout: TimeSpan.FromSeconds(2)));
                 }
 
                 Assert.False(failed);
-            }
-
-            private void WaitForConditionOrTimeout(Func<bool> predicate, TimeSpan waitSpan)
-            {
-                DateTime start = DateTime.UtcNow;
-                while (true)
-                {
-                    if (predicate() || DateTime.UtcNow > start.Add(waitSpan))
-                    {
-                        return;
-                    }
-                    Thread.Sleep(1);
-                }
             }
         }
     }

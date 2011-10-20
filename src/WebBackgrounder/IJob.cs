@@ -12,9 +12,6 @@ namespace WebBackgrounder
 
         Task Execute();
 
-        /// <summary>
-        /// Interval in milliseconds.
-        /// </summary>
         TimeSpan Interval { get; }
     }
 }
