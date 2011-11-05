@@ -63,14 +63,14 @@ namespace WebBackgrounder
 
             // We do a double check here because this is the first query we run and 
             // a database can't be created inside a transaction scope.
-            if (_workItemRepository.AnyActiveWorker(jobName))
+            if (_workItemRepository.GetActiveWorker(jobName) != null)
             {
                 return null;
             }
 
             _workItemRepository.RunInTransaction(() =>
                 {
-                    if (_workItemRepository.AnyActiveWorker(jobName))
+                    if (_workItemRepository.GetActiveWorker(jobName) != null)
                     {
                         workItemId = null;
                         return;

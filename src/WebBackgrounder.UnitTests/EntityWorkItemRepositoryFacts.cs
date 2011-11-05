@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
+using System.Data.Entity;
 using Moq;
 using Xunit;
 
@@ -8,10 +8,10 @@ namespace WebBackgrounder.UnitTests
 {
     public class EntityWorkItemRepositoryFacts
     {
-        public class TheAnyActiveWorkerProperty
+        public class TheGetActiveWorkerProperty
         {
             [Fact]
-            public void ReturnsTrueWhenAWorkerHasNoCompletedDate()
+            public void ReturnsActiveWorkItemWhenAWorkerHasNoCompletedDate()
             {
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
@@ -26,13 +26,13 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker("docoolstuffjobname");
+                var activeWorkItem = repository.GetActiveWorker("docoolstuffjobname");
 
-                Assert.True(anyActive);
+                Assert.NotNull(activeWorkItem);
             }
 
             [Fact]
-            public void ReturnsFalseWhenAllWorkItemsHaveCompletedDate()
+            public void ReturnsNullWhenAllWorkItemsHaveCompletedDate()
             {
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
@@ -47,13 +47,13 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker("docoolstuff");
+                var activeWorker = repository.GetActiveWorker("docoolstuff");
 
-                Assert.False(anyActive);
+                Assert.Null(activeWorker);
             }
 
             [Fact]
-            public void ReturnsFalseWhenNoWorkItemsReturnedForGivenJob()
+            public void ReturnsNullWhenNoWorkItemsReturnedForGivenJob()
             {
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
@@ -68,9 +68,9 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                bool anyActive = repository.AnyActiveWorker("docoolstuff");
+                var activeWorkItem = repository.GetActiveWorker("docoolstuff");
 
-                Assert.False(anyActive);
+                Assert.Null(activeWorkItem);
             }
         }
 

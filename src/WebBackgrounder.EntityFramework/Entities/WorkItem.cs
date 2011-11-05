@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebBackgrounder
 {
-    public class WorkItem
+    public class WorkItem : IWorkItem
     {
         public long Id { get; set; }
         [StringLength(64)]

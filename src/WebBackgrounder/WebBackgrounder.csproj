@@ -47,6 +47,7 @@
     <Compile Include="IJobCoordinator.cs" />
     <Compile Include="IJob.cs" />
     <Compile Include="IJobHost.cs" />
+    <Compile Include="IWorkItem.cs" />
     <Compile Include="JobHost.cs" />
     <Compile Include="IWorkItemRepository.cs" />
     <Compile Include="Job.cs" />

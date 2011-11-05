@@ -32,15 +32,14 @@ namespace WebBackgrounder
             _context = _contextThunk();
         }
 
-        public bool AnyActiveWorker(string jobName)
+        public IWorkItem GetActiveWorker(string jobName)
         {
             var activeWorker = GetActiveWorkItem(jobName);
             if (activeWorker != null)
             {
-                // TODO: Handle work item expiration.
-                return true;
+                return (IWorkItem)activeWorker;
             }
-            return false;
+            return null;
         }
 
         private WorkItem GetActiveWorkItem(string jobName)
