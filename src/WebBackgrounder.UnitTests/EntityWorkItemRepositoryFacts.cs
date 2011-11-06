@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Data.Entity;
+using System.Linq;
 using Moq;
 using Xunit;
 
@@ -8,7 +8,7 @@ namespace WebBackgrounder.UnitTests
 {
     public class EntityWorkItemRepositoryFacts
     {
-        public class TheGetActiveWorkerProperty
+        public class TheGetLastWorkItemMethod
         {
             [Fact]
             public void ReturnsActiveWorkItemWhenAWorkerHasNoCompletedDate()
@@ -26,18 +26,26 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorkItem = repository.GetActiveWorker("docoolstuffjobname");
+                var activeWorkItem = repository.GetLastWorkItem("docoolstuffjobname");
 
-                Assert.NotNull(activeWorkItem);
+                Assert.True(activeWorkItem.IsActive());
             }
 
             [Fact]
-            public void ReturnsNullWhenAllWorkItemsHaveCompletedDate()
+            public void ReturnsLastInactiveWorkItemWhenAllWorkItemsHaveCompletedDate()
             {
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
                     new WorkItem
                     {
+                        Id = 1,
+                        JobName = "docoolstuff", 
+                        Started = DateTime.UtcNow.AddMinutes(-1), 
+                        Completed = DateTime.UtcNow.AddMinutes(-1)
+                    },
+                    new WorkItem
+                    {
+                        Id = 2,
                         JobName = "docoolstuff", 
                         Started = DateTime.UtcNow, 
                         Completed = DateTime.UtcNow
@@ -47,9 +55,10 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorker = repository.GetActiveWorker("docoolstuff");
+                var activeWorker = repository.GetLastWorkItem("docoolstuff");
 
-                Assert.Null(activeWorker);
+                Assert.Equal(2, activeWorker.Id);
+                Assert.False(activeWorker.IsActive());
             }
 
             [Fact]
@@ -68,7 +77,7 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorkItem = repository.GetActiveWorker("docoolstuff");
+                var activeWorkItem = repository.GetLastWorkItem("docoolstuff");
 
                 Assert.Null(activeWorkItem);
             }

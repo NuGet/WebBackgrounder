@@ -4,7 +4,8 @@ namespace WebBackgrounder
 {
     public interface IWorkItem
     {
-        DateTime Started { get; }
+        long Id { get; set; }
+        DateTime Started { get; set; }
         DateTime? Completed { get; set; }
     }
 }

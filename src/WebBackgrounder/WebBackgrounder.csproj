@@ -59,6 +59,7 @@
     <Compile Include="Scheduler.cs" />
     <Compile Include="TimerExtensions.cs" />
     <Compile Include="WebFarmJobCoordinator.cs" />
+    <Compile Include="WorkItemExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WebBackgrounder.nuspec">

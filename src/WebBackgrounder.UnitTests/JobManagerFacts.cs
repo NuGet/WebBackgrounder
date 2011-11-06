@@ -1,5 +1,9 @@
 ﻿using System;
+<<<<<<< HEAD
 
+=======
+using System.Collections.Concurrent;
+>>>>>>> Fixed unit tests that had timing issues.
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -25,74 +29,68 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void GetsTheJobDone()
             {
-                var resetEvent = new ManualResetEvent(initialState: false);
+                var jobDoneEvent = new ManualResetEvent(false);
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
                 var jobs = new[] { job.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => resetEvent.Set()));
+                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => jobDoneEvent.Set()));
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Start();
-                    Assert.True(resetEvent.WaitOne(timeout: TimeSpan.FromSeconds(2)));
+                    Assert.True(jobDoneEvent.WaitOne(TimeSpan.FromSeconds(2)));
                 }
             }
 
             [Fact]
             public void GetsTheJobsDoneInTheRightOrder()
             {
-                var jobOneEvent = new ManualResetEvent(initialState: false);
-                var jobTwoEvent = new ManualResetEvent(initialState: false);
-                DateTime jobOneDone = DateTime.MinValue;
-                DateTime jobTwoDone = DateTime.MinValue;
-                var jobOne = new Mock<IJob>();
-                jobOne.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(10));
-                jobOne.Setup(j => j.Name).Returns("Job One");
-                var jobTwo = new Mock<IJob>();
-                jobTwo.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(8));
-                jobTwo.Setup(j => j.Name).Returns("Job Two");
-                var jobs = new[] { jobOne.Object, jobTwo.Object };
+                var completed = new ConcurrentQueue<string>();
+                var longerJobDoneEvent = new ManualResetEvent(false);
+                var shorterJobDoneEvent = new ManualResetEvent(false);
+                var longerJob = new Mock<IJob>();
+                var shorterJob = new Mock<IJob>();
+                longerJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(4));
+                shorterJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(3));
+                var jobs = new[] { longerJob.Object, shorterJob.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(jobOne.Object)).Returns(new Task(() =>
-                {
-                    jobOneDone = DateTime.UtcNow;
-                    jobOneEvent.Set();
-                }));
-                coordinator.Setup(c => c.GetWork(jobTwo.Object)).Returns(new Task(() =>
-                {
-                    jobTwoDone = DateTime.UtcNow;
-                    jobTwoEvent.Set();
-                }));
+                coordinator.Setup(c => c.GetWork(shorterJob.Object)).Returns((Task)null).Callback(() => { completed.Enqueue("shortJob"); shorterJobDoneEvent.Set(); });
+                coordinator.Setup(c => c.GetWork(longerJob.Object)).Returns((Task)null).Callback(() => { completed.Enqueue("longJob"); longerJobDoneEvent.Set(); });
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Start();
-                    Assert.True(jobOneEvent.WaitOne(timeout: TimeSpan.FromSeconds(4)));
-                    Assert.True(jobTwoEvent.WaitOne(timeout: TimeSpan.FromSeconds(4)));
+
+                    Assert.True(longerJobDoneEvent.WaitOne(TimeSpan.FromSeconds(5)));
+                    Assert.True(shorterJobDoneEvent.WaitOne(TimeSpan.Zero));
                 }
 
-                Assert.True(jobOneDone > DateTime.MinValue);
-                Assert.True(jobTwoDone > DateTime.MinValue);
-                Assert.True(jobTwoDone < jobOneDone);
+                var ordered = completed.ToArray();
+                Assert.Equal("shortJob", ordered[0]);
+                Assert.Equal("longJob", ordered[1]);
             }
 
             [Fact]
             public void DoesNotThrowExceptionWhenThereIsNoWorkToDo()
             {
-                var job = new Mock<IJob>();
-                job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
-                var jobs = new[] { job.Object };
-                var jobCalledEvent = new ManualResetEvent(initialState: false);
+                var jobNoTask = new Mock<IJob>();
+                jobNoTask.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
+                var secondJob = new Mock<IJob>();
+                secondJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(2));
+                var jobs = new[] { jobNoTask.Object, secondJob.Object };
+                var firstJobCompleteEvent = new ManualResetEvent(false);
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns((Task)null).Callback(() => jobCalledEvent.Set());
+                coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Returns((Task)null);
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+
                 bool failed = false;
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
                     manager.Fail(e => failed = true);
                     manager.Start();
-                    Assert.True(jobCalledEvent.WaitOne(timeout: TimeSpan.FromSeconds(2)));
+                    Assert.True(firstJobCompleteEvent.WaitOne(TimeSpan.FromSeconds(1)));
                 }
 
                 Assert.False(failed);

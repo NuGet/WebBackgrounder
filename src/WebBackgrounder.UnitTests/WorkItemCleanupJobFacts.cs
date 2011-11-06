@@ -19,11 +19,11 @@ namespace WebBackgrounder.UnitTests
                 {
                     new WorkItem {Id = 101, Completed = DateTime.UtcNow.AddDays(-4)}, 
                     new WorkItem {Id = 102, Completed = DateTime.UtcNow.AddDays(-4)}, 
-                    new WorkItem {Id = 103, Completed = DateTime.UtcNow.AddDays(-2)}, 
+                    new WorkItem {Id = 103, Completed = DateTime.UtcNow.AddDays(-2).AddMilliseconds(-1)}, 
                     new WorkItem {Id = 104, Completed = DateTime.UtcNow}, 
                     new WorkItem {Id = 105 }
                 });
-                var job = new WorkItemCleanupJob(TimeSpan.FromSeconds(1), TimeSpan.FromDays(2), context.Object);
+                var job = new WorkItemCleanupJob(TimeSpan.FromMilliseconds(1), TimeSpan.FromDays(2), context.Object);
                 var task = job.Execute();
                 task.Start();
                 task.Wait();

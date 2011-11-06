@@ -13,7 +13,7 @@ namespace WebBackgrounder.UnitTests
             public void ReturnsNullWhenActiveWorkersExist()
             {
                 var repository = new Mock<IWorkItemRepository>();
-                repository.Setup(r => r.GetActiveWorker("jobname")).Returns(new Mock<IWorkItem>().Object);
+                repository.Setup(r => r.GetLastWorkItem("jobname")).Returns(new Mock<IWorkItem>().Object);
                 var coordinator = new WebFarmJobCoordinator(repository.Object);
 
                 var unitOfWork = coordinator.ReserveWork("worker-id", "jobname");
@@ -24,10 +24,15 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsNullWhenActiveWorkersExistWithinTransaction()
             {
-                var activeWorkerQueue = new Queue<IWorkItem>(new[] { null, new Mock<IWorkItem>().Object });
+                var complete = new Mock<IWorkItem>();
+                complete.Setup(wi => wi.Completed).Returns(DateTime.UtcNow);
+                var active = new Mock<IWorkItem>();
+                active.Setup(wi => wi.Completed).Returns((DateTime?)null);
+
+                var activeWorkerQueue = new Queue<IWorkItem>(new[] { complete.Object, active.Object });
                 var repository = new Mock<IWorkItemRepository>();
-                repository.Setup(r => r.GetActiveWorker("jobname")).Returns(activeWorkerQueue.Dequeue);
-                repository.Setup(r => r.GetActiveWorker("jobname")).Returns(activeWorkerQueue.Dequeue);
+                repository.Setup(r => r.GetLastWorkItem("jobname")).Returns(activeWorkerQueue.Dequeue);
+                repository.Setup(r => r.GetLastWorkItem("jobname")).Returns(activeWorkerQueue.Dequeue);
                 repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
                 repository.Setup(r => r.CreateWorkItem("worker-id", "jobname")).Throws(new InvalidOperationException());
                 var coordinator = new WebFarmJobCoordinator(repository.Object);
@@ -41,7 +46,7 @@ namespace WebBackgrounder.UnitTests
             public void ReturnsUnitOfWorkWhenNoActiveWorkers()
             {
                 var repository = new Mock<IWorkItemRepository>();
-                repository.Setup(r => r.GetActiveWorker("jobname")).Returns((IWorkItem)null);
+                repository.Setup(r => r.GetLastWorkItem("jobname")).Returns((IWorkItem)null);
                 repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
                 repository.Setup(r => r.CreateWorkItem("worker-id", "jobname")).Returns(123);
                 var coordinator = new WebFarmJobCoordinator(repository.Object);
@@ -60,7 +65,7 @@ namespace WebBackgrounder.UnitTests
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Execute()).Throws(new InvalidOperationException("Test Exception"));
                 var repository = new Mock<IWorkItemRepository>();
-                repository.Setup(r => r.GetActiveWorker("jobname")).Returns((IWorkItem)null);
+                repository.Setup(r => r.GetLastWorkItem("jobname")).Returns((IWorkItem)null);
                 repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
                 repository.Setup(r => r.CreateWorkItem("worker-id", "jobname")).Returns(() => 123);
                 var coordinator = new WebFarmJobCoordinator(repository.Object);

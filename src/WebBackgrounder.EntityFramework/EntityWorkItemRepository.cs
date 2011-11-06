@@ -32,14 +32,12 @@ namespace WebBackgrounder
             _context = _contextThunk();
         }
 
-        public IWorkItem GetActiveWorker(string jobName)
+        public IWorkItem GetLastWorkItem(string jobName)
         {
-            var activeWorker = GetActiveWorkItem(jobName);
-            if (activeWorker != null)
-            {
-                return (IWorkItem)activeWorker;
-            }
-            return null;
+            return (from w in _context.WorkItems
+                    where w.JobName == jobName
+                    orderby w.Started descending
+                    select w).FirstOrDefault() as IWorkItem;
         }
 
         private WorkItem GetActiveWorkItem(string jobName)
