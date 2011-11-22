@@ -1,9 +1,5 @@
 ﻿using System;
-<<<<<<< HEAD
-
-=======
 using System.Collections.Concurrent;
->>>>>>> Fixed unit tests that had timing issues.
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
