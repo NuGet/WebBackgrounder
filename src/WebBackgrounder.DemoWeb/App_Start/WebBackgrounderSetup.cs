@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Web;
 using Elmah;
 using WebBackgrounder.Jobs;
 
@@ -11,7 +10,6 @@ namespace WebBackgrounder.DemoWeb.App_Start
     public static class WebBackgrounderSetup
     {
         static readonly JobManager _jobManager = CreateJobWorkersManager();
-        static HttpApplication _httpApplication = null;
 
         public static void Start()
         {
@@ -21,11 +19,6 @@ namespace WebBackgrounder.DemoWeb.App_Start
         public static void Shutdown()
         {
             _jobManager.Dispose();
-        }
-
-        public static void SetHttpApplication(HttpApplication httpApplication)
-        {
-            _httpApplication = httpApplication;
         }
 
         private static JobManager CreateJobWorkersManager()
@@ -39,10 +32,7 @@ namespace WebBackgrounder.DemoWeb.App_Start
 
             var coordinator = new WebFarmJobCoordinator(new EntityWorkItemRepository(() => new WorkItemsContext()));
             var manager = new JobManager(jobs, coordinator);
-            if (_httpApplication != null)
-            {
-                manager.Fail(e => ErrorSignal.Get(_httpApplication).Raise(e));
-            }
+            manager.Fail(ex => Elmah.ErrorLog.GetDefault(null).Log(new Error(ex)));
             return manager;
         }
     }
