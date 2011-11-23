@@ -32,27 +32,19 @@ namespace WebBackgrounder
             _context = _contextThunk();
         }
 
-        public IWorkItem GetLastWorkItem(string jobName)
+        public IWorkItem GetLastWorkItem(IJob job)
         {
             return (from w in _context.WorkItems
-                    where w.JobName == jobName
+                    where w.JobName == job.Name
                     orderby w.Started descending
                     select w).FirstOrDefault() as IWorkItem;
         }
 
-        private WorkItem GetActiveWorkItem(string jobName)
-        {
-            return (from w in _context.WorkItems
-                    where w.JobName == jobName
-                          && w.Completed == null
-                    select w).FirstOrDefault();
-        }
-
-        public long CreateWorkItem(string workerId, string jobName)
+        public long CreateWorkItem(string workerId, IJob job)
         {
             var workItem = new WorkItem
             {
-                JobName = jobName,
+                JobName = job.Name,
                 WorkerId = workerId,
                 Started = DateTime.UtcNow,
                 Completed = null

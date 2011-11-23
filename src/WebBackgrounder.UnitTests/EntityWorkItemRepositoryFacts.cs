@@ -13,11 +13,13 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsActiveWorkItemWhenAWorkerHasNoCompletedDate()
             {
+                var job = new Mock<IJob>();
+                job.Setup(j => j.Name).Returns("docoolstuffjobname");
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
                     new WorkItem
                     {
-                        JobName = "docoolstuffjobname", 
+                        JobName = job.Object.Name, 
                         Started = DateTime.UtcNow, 
                         Completed = null
                     }
@@ -26,7 +28,7 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorkItem = repository.GetLastWorkItem("docoolstuffjobname");
+                var activeWorkItem = repository.GetLastWorkItem(job.Object);
 
                 Assert.True(activeWorkItem.IsActive());
             }
@@ -34,19 +36,21 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsLastInactiveWorkItemWhenAllWorkItemsHaveCompletedDate()
             {
+                var job = new Mock<IJob>();
+                job.Setup(j => j.Name).Returns("docoolstuff");
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
                     new WorkItem
                     {
                         Id = 1,
-                        JobName = "docoolstuff", 
+                        JobName = job.Object.Name, 
                         Started = DateTime.UtcNow.AddMinutes(-1), 
                         Completed = DateTime.UtcNow.AddMinutes(-1)
                     },
                     new WorkItem
                     {
                         Id = 2,
-                        JobName = "docoolstuff", 
+                        JobName = job.Object.Name, 
                         Started = DateTime.UtcNow, 
                         Completed = DateTime.UtcNow
                     }
@@ -55,7 +59,7 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorker = repository.GetLastWorkItem("docoolstuff");
+                var activeWorker = repository.GetLastWorkItem(job.Object);
 
                 Assert.Equal(2, activeWorker.Id);
                 Assert.False(activeWorker.IsActive());
@@ -64,11 +68,13 @@ namespace WebBackgrounder.UnitTests
             [Fact]
             public void ReturnsNullWhenNoWorkItemsReturnedForGivenJob()
             {
+                var job = new Mock<IJob>();
+                job.Setup(j => j.Name).Returns("docoolstuff");
                 var workItems = new InMemoryDbSet<WorkItem> 
                 {
                     new WorkItem
                     {
-                        JobName = "douncoolstuff", 
+                        JobName = "DoNotDoAnyCoolStuff", 
                         Started = DateTime.UtcNow, 
                         Completed = DateTime.UtcNow
                     }
@@ -77,7 +83,7 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = workItems;
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                var activeWorkItem = repository.GetLastWorkItem("docoolstuff");
+                var activeWorkItem = repository.GetLastWorkItem(job.Object);
 
                 Assert.Null(activeWorkItem);
             }
@@ -87,13 +93,15 @@ namespace WebBackgrounder.UnitTests
         {
             public void CreatesNewWorkItemThatIsNotComplete()
             {
+                var job = new Mock<IJob>();
+                job.Setup(j => j.Name).Returns("do-cool-stuff");
                 var before = DateTime.UtcNow;
                 var context = new Mock<WorkItemsContext>();
                 context.Setup(c => c.SaveChanges()).Verifiable();
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem>();
                 var repository = new EntityWorkItemRepository(() => context.Object);
 
-                repository.CreateWorkItem("web-server-1", "do-cool-stuff");
+                repository.CreateWorkItem("web-server-1", job.Object);
 
                 var created = context.Object.WorkItems.First(w => w.WorkerId == "web-server-1");
                 Assert.NotNull(created);

@@ -13,5 +13,7 @@ namespace WebBackgrounder
         Task Execute();
 
         TimeSpan Interval { get; }
+
+        TimeSpan Timeout { get; }
     }
 }

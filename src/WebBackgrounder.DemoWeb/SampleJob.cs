@@ -6,8 +6,8 @@ namespace WebBackgrounder.DemoWeb
 {
     public class SampleJob : Job
     {
-        public SampleJob(TimeSpan interval)
-            : base("Sample Job", interval)
+        public SampleJob(TimeSpan interval, TimeSpan timeout)
+            : base("Sample Job", interval, timeout)
         {
         }
 
