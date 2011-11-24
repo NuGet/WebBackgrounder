@@ -1,0 +1,21 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)' == ''">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile=".\3rdParty\xunit\xunit.runner.msbuild.dll" TaskName="Xunit.Runner.MSBuild.xunit" />
+  
+  <Target Name="Clean">
+    <MSBuild Projects=".\src\WebBackgrounder.sln" Targets="Clean" Properties="Configuration=$(Configuration)"/>
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="Clean">
+    <MSBuild Projects=".\src\WebBackgrounder.sln" Targets="Build" Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="RunFacts" DependsOnTargets="Build"> 
+    <xunit Assembly=".\src\WebBackgrounder.UnitTests\bin\$(Configuration)\WebBackgrounder.UnitTests.dll" Xml="WebBackgrounder.UnitTests.results.xml" />
+  </Target>
+ 
+  <Target Name="FullBuild" DependsOnTargets="RunFacts" />
+</Project>
