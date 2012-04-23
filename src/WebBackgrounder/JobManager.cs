@@ -67,6 +67,7 @@ namespace WebBackgrounder
             catch (Exception e)
             {
                 OnException(e); // Someone else's problem.
+                _timer.Next(_scheduler.Next().GetIntervalToNextRun()); // Start up again.
             }
         }
 
