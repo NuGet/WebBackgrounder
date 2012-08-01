@@ -91,6 +91,47 @@ namespace WebBackgrounder.UnitTests
 
                 Assert.False(failed);
             }
+
+            [Fact]
+            public void SchedulerRestartsWhenJobFailsAndRestartSchedulerIsTrue()
+            {
+                var jobNoTask = new Mock<IJob>();
+                jobNoTask.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
+                var secondJob = new Mock<IJob>();
+                secondJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(2));
+                var jobs = new[] { jobNoTask.Object, secondJob.Object };
+                var firstJobCompleteEvent = new ManualResetEvent(false);
+                var coordinator = new Mock<IJobCoordinator>();
+                coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Throws<Exception>();
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+
+                using (var manager = new JobManager(jobs, coordinator.Object))
+                {
+                    manager.RestartSchedulerOnFailure = true;
+                    manager.Start();
+                    Assert.True(firstJobCompleteEvent.WaitOne(TimeSpan.FromSeconds(1)));
+                }
+            }
+
+            [Fact]
+            public void SchedulerDoesNotRestartWhenJobFailsAndRestartSchedulerIsFalse()
+            {
+                var jobNoTask = new Mock<IJob>();
+                jobNoTask.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
+                var secondJob = new Mock<IJob>();
+                secondJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(2));
+                var jobs = new[] { jobNoTask.Object, secondJob.Object };
+                var firstJobCompleteEvent = new ManualResetEvent(false);
+                var coordinator = new Mock<IJobCoordinator>();
+                coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Throws<Exception>();
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+
+                using (var manager = new JobManager(jobs, coordinator.Object))
+                {
+                    manager.Start();
+                    Assert.False(firstJobCompleteEvent.WaitOne(TimeSpan.FromSeconds(1)));
+                }
+            }
         }
     }
 }
