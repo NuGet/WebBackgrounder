@@ -14,15 +14,11 @@ namespace WebBackgrounder
         readonly IEnumerable<IJob> _jobs;
         Action<Exception> _failHandler;
 
-        public JobManager(IEnumerable<IJob> jobs, IJobHost host)
-            : this(jobs, host, new SingleServerJobCoordinator())
-        {
-        }
+        public bool RestartSchedulerOnFailure { get; set; }
 
-        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator)
-            : this(jobs, new JobHost(), coordinator)
-        {
-        }
+        public JobManager(IEnumerable<IJob> jobs, IJobHost host) : this(jobs, host, new SingleServerJobCoordinator()) { }
+
+        public JobManager(IEnumerable<IJob> jobs, IJobCoordinator coordinator) : this(jobs, new JobHost(), coordinator) { }
 
         public JobManager(IEnumerable<IJob> jobs, IJobHost host, IJobCoordinator coordinator)
         {
@@ -67,6 +63,11 @@ namespace WebBackgrounder
             catch (Exception e)
             {
                 OnException(e); // Someone else's problem.
+
+                if (RestartSchedulerOnFailure)
+                {
+                    _timer.Next(_scheduler.Next().GetIntervalToNextRun()); // Start up again.
+                }
             }
         }
 
