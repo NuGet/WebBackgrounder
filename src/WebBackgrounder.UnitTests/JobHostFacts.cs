@@ -58,6 +58,19 @@ namespace WebBackgrounder.UnitTests
 
                 Assert.Equal("work", exception.ParamName);
             }
+
+            [Fact]
+            public void DoesNotCallStartIfWorkIsAlreadyScheduledOrCompleted()
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tcs.SetResult(null);
+
+                var task = tcs.Task;
+
+                var host = new JobHost();
+
+                Assert.DoesNotThrow(() => host.DoWork(task));
+            }
         }
     }
 }
