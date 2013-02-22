@@ -8,6 +8,21 @@ namespace WebBackgrounder.UnitTests
 {
     public class EntityWorkItemRepositoryFacts
     {
+        public class TheConstructor
+        {
+            [Fact]
+            public void ThrowsForANullFactoryThunk()
+            {
+                Assert.Throws<ArgumentNullException>(() => new EntityWorkItemRepository(null));
+            }
+
+            [Fact]
+            public void ThrowsForAnInvalidFactoryThunk()
+            {
+                Assert.Throws<InvalidOperationException>(() => new EntityWorkItemRepository(() => null));
+            }
+        }
+
         public class TheGetLastWorkItemMethod
         {
             [Fact]
