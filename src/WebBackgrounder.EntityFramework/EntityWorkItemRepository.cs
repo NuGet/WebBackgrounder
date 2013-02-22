@@ -23,13 +23,20 @@ namespace WebBackgrounder
                 // For some reason, I get different behavior when I use this
                 // instead of _context.Database.Connection. This works, that doesn't. :(
                 ((IObjectContextAdapter)_context).ObjectContext.Connection.Open();
-                query();
-                transaction.Complete();
+                try
+                {
+                    query();
+                    transaction.Complete();
+                    transaction.Dispose();
+                }
+                finally
+                {
+                    // REVIEW: Make sure this is really needed. I kept running into 
+                    // exceptions when I didn't do this, but I may be doing it wrong. -Phil 10/17/2011
+                    _context.Dispose();
+                    _context = _contextThunk();
+                }
             }
-            // REVIEW: Make sure this is really needed. I kept running into 
-            // exceptions when I didn't do this, but I may be doing it wrong. -Phil 10/17/2011
-            _context.Dispose();
-            _context = _contextThunk();
         }
 
         public IWorkItem GetLastWorkItem(IJob job)
