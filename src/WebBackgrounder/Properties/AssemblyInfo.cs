@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WebBackgrounder")]
 [assembly: AssemblyDescription("WebBackgrounder is a proof-of-concept of a web-farm friendly background task manager meant to just work with a vanilla ASP.NET web application. See https://github.com/NuGet/WebBackgrounder for more information.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Outercurve Foundation")]
+[assembly: AssemblyCompany(".NET Foundation")]
 [assembly: AssemblyProduct("WebBackgrounder")]
-[assembly: AssemblyCopyright("Copyright © Outercurve Foundation 2011")]
+[assembly: AssemblyCopyright("Copyright © .NET Foundation 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

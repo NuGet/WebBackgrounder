@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WebBackgrounder.EntityFramework")]
 [assembly: AssemblyDescription("WebBackgrounder.EntityFramework is an implementation of the IJobCoordinator for WebBackgrounder that uses a Database (via EF Code First) as the synchronization mechanism (aka a mutex) for coordinating jobs.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Outercurve Foundation")]
+[assembly: AssemblyCompany(".NET Foundation")]
 [assembly: AssemblyProduct("WebBackgrounder")]
-[assembly: AssemblyCopyright("Copyright © Outercurve Foundation 2011")]
+[assembly: AssemblyCopyright("Copyright © .NET Foundation 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
