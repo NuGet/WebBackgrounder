@@ -30,7 +30,7 @@ tasks to run without requiring a bunch of setup or a connection to Azure.
 
 # What this is not
 This is not a general purpose scheduling framework. There are much better ones 
-out there such as FluentScheduler and Quartz.net. The goal of this project is 
+out there such as hangfire.io, FluentScheduler and Quartz.net. The goal of this project is 
 to handle one task only, manage a recurring task on an interval in the 
 background for a web app.
 
