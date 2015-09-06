@@ -20,9 +20,9 @@ namespace WebBackgrounder
             _workItemRepository = workItemRepository;
         }
 
-        // Returns a task with the work to do if work is available to do and another web server 
+        // Returns a job with the work to do if work is available to do and another web server 
         // in the web farm isn't already doing it. 
-        public Task GetWork(IJob job)
+        public IJob GetWork(IJob job)
         {
             if (job == null)
             {
@@ -35,28 +35,31 @@ namespace WebBackgrounder
                 return null;
             }
 
-            Task task = null;
-            try
+            return new DelegatingJob(job, () =>
             {
-                task = job.Execute();
-            }
-            catch (Exception e)
-            {
-                task = new Task(() => { throw e; });
-            }
-            task.ContinueWith(c =>
-            {
-                if (c.IsFaulted)
+                Task task = null;
+                try
                 {
-                    unitOfWork.Fail(c.Exception.GetBaseException());
+                    task = job.Execute();
                 }
-                else
+                catch (Exception e)
                 {
-                    unitOfWork.Complete();
+                    task = new Task(() => { throw e; });
                 }
-            });
+                task.ContinueWith(c =>
+                {
+                    if (c.IsFaulted)
+                    {
+                        unitOfWork.Fail(c.Exception.GetBaseException());
+                    }
+                    else
+                    {
+                        unitOfWork.Complete();
+                    }
+                });
 
-            return task;
+                return task;
+            });
         }
 
         // if work is available to do and another web server in the web farm isn't already doing, 

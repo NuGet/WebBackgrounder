@@ -4,9 +4,9 @@ namespace WebBackgrounder
 {
     public class SingleServerJobCoordinator : IJobCoordinator
     {
-        public Task GetWork(IJob job)
+        public IJob GetWork(IJob job)
         {
-            return job.Execute();
+            return job;
         }
 
         public void Dispose()
