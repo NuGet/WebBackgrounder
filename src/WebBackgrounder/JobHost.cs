@@ -47,11 +47,18 @@ namespace WebBackgrounder
                     task.Start();
                 }
 
-                // Need to hold the lock until the task completes.
-                // Later on, we should take advantage of the fact that the work is represented 
-                // by a task. Instead of locking, we could simply have the Stop method cancel 
-                // any pending tasks.
-                task.Wait();
+                try
+                {
+                    // Wait() rethrows exceptions (if any) wrapped in an AggregateException.
+                    task.Wait();
+                }
+                catch (AggregateException ae)
+                {
+                    if (ae.Flatten().InnerException as OperationCanceledException == null)
+                    {
+                        throw; // Rethrow if the real exception wasn't OperationCanceledException.
+                    }
+                }
             }
         }
     }
