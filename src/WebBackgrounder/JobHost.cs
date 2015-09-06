@@ -23,7 +23,7 @@ namespace WebBackgrounder
             HostingEnvironment.UnregisterObject(this);
         }
 
-        public void DoWork(Task work)
+        public void DoWork(IJob work)
         {
             if (work == null)
             {
@@ -36,16 +36,18 @@ namespace WebBackgrounder
                     return;
                 }
 
-                if (work.Status == TaskStatus.Created)
+                var task = work.Execute();
+
+                if (task.Status == TaskStatus.Created)
                 {
-                    work.Start();
+                    task.Start();
                 }
 
                 // Need to hold the lock until the task completes.
                 // Later on, we should take advantage of the fact that the work is represented 
                 // by a task. Instead of locking, we could simply have the Stop method cancel 
                 // any pending tasks.
-                work.Wait();
+                task.Wait();
             }
         }
     }

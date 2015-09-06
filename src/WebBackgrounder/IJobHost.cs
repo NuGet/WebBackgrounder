@@ -9,6 +9,6 @@ namespace WebBackgrounder
     /// </summary>
     public interface IJobHost
     {
-        void DoWork(Task work);
+        void DoWork(IJob work);
     }
 }
