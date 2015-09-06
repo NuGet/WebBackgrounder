@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
@@ -86,7 +87,7 @@ namespace WebBackgrounder.UnitTests
             {
                 var job = new Mock<IJob>();
                 job.Setup(j => j.Name).Returns("job-name");
-                job.Setup(j => j.Execute()).Throws(new InvalidOperationException("Test Exception"));
+                job.Setup(j => j.Execute(It.IsAny<CancellationToken>())).Throws(new InvalidOperationException("Test Exception"));
                 var repository = new Mock<IWorkItemRepository>();
                 repository.Setup(r => r.GetLastWorkItem(job.Object)).Returns((IWorkItem)null);
                 repository.Setup(r => r.RunInTransaction(It.IsAny<Action>())).Callback<Action>(a => a());
@@ -129,7 +130,7 @@ namespace WebBackgrounder.UnitTests
                 set;
             }
 
-            public Task Execute()
+            public Task Execute(CancellationToken cancellationToken)
             {
                 return null;
             }

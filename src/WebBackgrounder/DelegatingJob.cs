@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebBackgrounder
 {
     public class DelegatingJob : IJob
     {
-        private Func<Task> _taskThunk;
+        private Func<CancellationToken, Task> _taskThunk;
 
-        private DelegatingJob(Func<Task> taskThunk)
+        private DelegatingJob(Func<CancellationToken, Task> taskThunk)
         {
             _taskThunk = taskThunk;
         }
 
-        public DelegatingJob(IJob job, Func<Task> taskThunk)
+        public DelegatingJob(IJob job, Func<CancellationToken, Task> taskThunk)
         {
             Name = job.Name;
             Interval = job.Interval;
@@ -26,20 +27,20 @@ namespace WebBackgrounder
         // Used in unit tests.
         public static IJob Create(Func<Task> taskThunk)
         {
-            return new DelegatingJob(taskThunk);
+            return new DelegatingJob((_) => taskThunk());
         }
 
         // Used in unit tests.
         public static IJob Create(Task task)
         {
-            return new DelegatingJob(() => task);
+            return new DelegatingJob((_) => task);
         }
 
         public string Name { get; set; }
 
-        public Task Execute()
+        public Task Execute(CancellationToken cancellationToken)
         {
-            return _taskThunk();
+            return _taskThunk(cancellationToken);
         }
 
         public TimeSpan Interval { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 
@@ -8,6 +9,7 @@ namespace WebBackgrounder
     {
         readonly object _lock = new object();
         bool _shuttingDown;
+        CancellationTokenSource _cts = new CancellationTokenSource();
 
         public JobHost()
         {
@@ -16,6 +18,8 @@ namespace WebBackgrounder
 
         public void Stop(bool immediate)
         {
+            if (immediate)
+                _cts.Cancel();
             lock (_lock)
             {
                 _shuttingDown = true;
@@ -31,12 +35,12 @@ namespace WebBackgrounder
             }
             lock (_lock)
             {
-                if (_shuttingDown)
+                if (_shuttingDown || _cts.IsCancellationRequested)
                 {
                     return;
                 }
 
-                var task = work.Execute();
+                var task = work.Execute(_cts.Token);
 
                 if (task.Status == TaskStatus.Created)
                 {

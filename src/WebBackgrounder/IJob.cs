@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebBackgrounder
@@ -10,7 +11,7 @@ namespace WebBackgrounder
         /// </summary>
         string Name { get; }
 
-        Task Execute();
+        Task Execute(CancellationToken cancellationToken);
 
         TimeSpan Interval { get; }
 

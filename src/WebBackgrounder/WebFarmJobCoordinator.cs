@@ -35,12 +35,12 @@ namespace WebBackgrounder
                 return null;
             }
 
-            return new DelegatingJob(job, () =>
+            return new DelegatingJob(job, (cancellationToken) =>
             {
                 Task task = null;
                 try
                 {
-                    task = job.Execute();
+                    task = job.Execute(cancellationToken);
                 }
                 catch (Exception e)
                 {
