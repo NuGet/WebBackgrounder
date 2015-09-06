@@ -36,6 +36,11 @@ namespace WebBackgrounder
             return new DelegatingJob((_) => task);
         }
 
+        public static IJob Create(Func<CancellationToken, Task> taskThunk)
+        {
+            return new DelegatingJob(taskThunk);
+        }
+
         public string Name { get; set; }
 
         public Task Execute(CancellationToken cancellationToken)

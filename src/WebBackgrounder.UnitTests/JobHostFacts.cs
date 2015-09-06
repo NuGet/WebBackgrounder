@@ -73,6 +73,43 @@ namespace WebBackgrounder.UnitTests
 
                 Assert.DoesNotThrow(() => host.DoWork(DelegatingJob.Create(task)));
             }
+
+            [Fact]
+            public void DoesNotCallStartIfWorkIsCanceled()
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tcs.SetException(new Exception());
+                var task = tcs.Task;
+
+                var host = new JobHost();
+                host.Stop(true);
+
+                Assert.DoesNotThrow(() => host.DoWork(DelegatingJob.Create(task)));
+            }
+
+            [Fact]
+            public void CancelsJobIfWorkIsCanceled()
+            {
+                Func<CancellationToken, Task> thunk = (CancellationToken token) => {
+                    return Task.Factory.StartNew(() => {
+                        while (true)
+                        {
+                            token.ThrowIfCancellationRequested();
+                            Thread.Sleep(10);
+                        }
+                    });
+                };
+
+                var host = new JobHost();
+                var stopTask = Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(100);
+                        host.Stop(true);
+                    });
+                var ex = Assert.Throws<AggregateException>(() => host.DoWork(DelegatingJob.Create(thunk))); // DoWork waits on the task.
+                Assert.IsAssignableFrom<OperationCanceledException>(ex.Flatten().InnerException);
+                stopTask.Wait();
+            }
         }
     }
 
