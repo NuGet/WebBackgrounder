@@ -13,25 +13,27 @@ namespace WebBackgrounder.UnitTests
             public void EnsuresNoWorkIsDone()
             {
                 var host = new JobHost();
-                var task = new Task(() => { throw new InvalidOperationException("Hey, this is supposed to be shut down!"); });
+                var job =
+                    new Task(() =>{ throw new InvalidOperationException("Hey, this is supposed to be shut down!"); })
+                    .ToJob();
 
                 host.Stop(true);
 
-                host.DoWork(task);
+                host.DoWork(job);
             }
 
             [Fact]
             public void WaitsForTaskToComplete()
             {
                 var host = new JobHost();
-                var workTask = new Task(() => host.DoWork(new Task(() =>
+                var workTask = new Task(() => host.DoWork(DelegatingJob.Create( new Task(() =>
                 {
                     // Was getting inconsistent results with Thread.Sleep(100)
                     for (int i = 0; i < 100; i++)
                     {
                         Thread.Sleep(1);
                     }
-                })));
+                }))));
                 var beforeStop = DateTime.UtcNow;
                 workTask.Start();
                 while (workTask.Status != TaskStatus.Running)
@@ -69,8 +71,16 @@ namespace WebBackgrounder.UnitTests
 
                 var host = new JobHost();
 
-                Assert.DoesNotThrow(() => host.DoWork(task));
+                Assert.DoesNotThrow(() => host.DoWork(DelegatingJob.Create(task)));
             }
+        }
+    }
+
+    public static class TaskExtensions
+    {
+        public static IJob ToJob(this Task @this)
+        {
+            return DelegatingJob.Create(@this);
         }
     }
 }
