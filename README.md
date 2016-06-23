@@ -2,6 +2,9 @@
 WebBackgrounder is a proof-of-concept of a web-farm friendly background task 
 manager meant to just work with a vanilla ASP.NET web application.
 
+# Open Source Code of Conduct
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 # Problem Statement
 Code that runs within ASP.NET does not own the App Domain. IIS and ASP.NET are 
 free to shut down the app domain at any moment.
