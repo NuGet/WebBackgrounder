@@ -30,7 +30,7 @@ namespace WebBackgrounder.UnitTests
                 job.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(1));
                 var jobs = new[] { job.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => jobDoneEvent.Set()));
+                coordinator.Setup(c => c.GetWork(job.Object)).Returns(new Task(() => jobDoneEvent.Set()).ToJob());
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
@@ -51,8 +51,8 @@ namespace WebBackgrounder.UnitTests
                 shorterJob.Setup(j => j.Interval).Returns(TimeSpan.FromMilliseconds(3));
                 var jobs = new[] { longerJob.Object, shorterJob.Object };
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(shorterJob.Object)).Returns((Task)null).Callback(() => { completed.Enqueue("shortJob"); shorterJobDoneEvent.Set(); });
-                coordinator.Setup(c => c.GetWork(longerJob.Object)).Returns((Task)null).Callback(() => { completed.Enqueue("longJob"); longerJobDoneEvent.Set(); });
+                coordinator.Setup(c => c.GetWork(shorterJob.Object)).Returns((IJob)null).Callback(() => { completed.Enqueue("shortJob"); shorterJobDoneEvent.Set(); });
+                coordinator.Setup(c => c.GetWork(longerJob.Object)).Returns((IJob)null).Callback(() => { completed.Enqueue("longJob"); longerJobDoneEvent.Set(); });
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
@@ -77,8 +77,8 @@ namespace WebBackgrounder.UnitTests
                 var jobs = new[] { jobNoTask.Object, secondJob.Object };
                 var firstJobCompleteEvent = new ManualResetEvent(false);
                 var coordinator = new Mock<IJobCoordinator>();
-                coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Returns((Task)null);
-                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+                coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Returns((IJob)null);
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((IJob)null).Callback(() => firstJobCompleteEvent.Set());
 
                 bool failed = false;
 
@@ -103,7 +103,7 @@ namespace WebBackgrounder.UnitTests
                 var firstJobCompleteEvent = new ManualResetEvent(false);
                 var coordinator = new Mock<IJobCoordinator>();
                 coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Throws<Exception>();
-                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((IJob)null).Callback(() => firstJobCompleteEvent.Set());
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {
@@ -124,7 +124,7 @@ namespace WebBackgrounder.UnitTests
                 var firstJobCompleteEvent = new ManualResetEvent(false);
                 var coordinator = new Mock<IJobCoordinator>();
                 coordinator.Setup(c => c.GetWork(jobNoTask.Object)).Throws<Exception>();
-                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((Task)null).Callback(() => firstJobCompleteEvent.Set());
+                coordinator.Setup(c => c.GetWork(secondJob.Object)).Returns((IJob)null).Callback(() => firstJobCompleteEvent.Set());
 
                 using (var manager = new JobManager(jobs, coordinator.Object))
                 {

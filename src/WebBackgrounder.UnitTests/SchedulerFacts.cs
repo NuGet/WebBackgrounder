@@ -45,12 +45,12 @@ namespace WebBackgrounder.UnitTests
                 var scheduler = new Scheduler(jobs, dates.Dequeue);
 
                 var firstSchedule = scheduler.Next();
-                firstSchedule.Job.Execute();
+                firstSchedule.Job.Execute(CancellationToken.None);
                 firstSchedule.SetRunComplete();
                 var secondSchedule = scheduler.Next();
                 secondSchedule.SetRunComplete();
                 var thirdSchedule = scheduler.Next();
-                
+
                 thirdSchedule.SetRunComplete();
                 var fourthSchedule = scheduler.Next();
                 fourthSchedule.SetRunComplete();
@@ -80,7 +80,7 @@ namespace WebBackgrounder.UnitTests
                 var scheduler = new Scheduler(jobs, dates.Dequeue);
 
                 var firstSchedule = scheduler.Next();
-                firstSchedule.Job.Execute();
+                firstSchedule.Job.Execute(CancellationToken.None);
                 firstSchedule.SetRunComplete();
                 var secondSchedule = scheduler.Next();
                 secondSchedule.SetRunComplete();
@@ -105,7 +105,7 @@ namespace WebBackgrounder.UnitTests
 
                 public int Id { get; private set; }
 
-                public override Task Execute()
+                public override Task Execute(CancellationToken cancellationToken)
                 {
                     return new Task(() => Thread.Sleep(1));
                 }

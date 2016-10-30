@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebBackgrounder
@@ -20,7 +21,7 @@ namespace WebBackgrounder
             private set;
         }
 
-        public abstract Task Execute();
+        public abstract Task Execute(CancellationToken cancellationToken);
 
         public TimeSpan Interval
         {

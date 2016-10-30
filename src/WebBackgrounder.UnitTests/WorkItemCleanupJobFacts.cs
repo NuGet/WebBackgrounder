@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Moq;
 using WebBackgrounder.Jobs;
 using Xunit;
@@ -24,7 +25,7 @@ namespace WebBackgrounder.UnitTests
                     new WorkItem {Id = 105 }
                 });
                 var job = new WorkItemCleanupJob(TimeSpan.FromMilliseconds(1), TimeSpan.FromDays(2), context.Object);
-                var task = job.Execute();
+                var task = job.Execute(CancellationToken.None);
                 task.Start();
                 task.Wait();
 
@@ -43,7 +44,7 @@ namespace WebBackgrounder.UnitTests
                 context.Object.WorkItems = new InMemoryDbSet<WorkItem> { new WorkItem(), new WorkItem() };
                 var job = new WorkItemCleanupJob(TimeSpan.FromSeconds(1), TimeSpan.FromDays(1), context.Object);
 
-                job.Execute();
+                job.Execute(CancellationToken.None);
             }
         }
     }

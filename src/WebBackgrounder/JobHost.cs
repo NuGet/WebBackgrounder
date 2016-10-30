@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 
@@ -8,6 +9,7 @@ namespace WebBackgrounder
     {
         readonly object _lock = new object();
         bool _shuttingDown;
+        CancellationTokenSource _cts = new CancellationTokenSource();
 
         public JobHost()
         {
@@ -16,6 +18,8 @@ namespace WebBackgrounder
 
         public void Stop(bool immediate)
         {
+            if (immediate)
+                _cts.Cancel();
             lock (_lock)
             {
                 _shuttingDown = true;
@@ -23,7 +27,7 @@ namespace WebBackgrounder
             HostingEnvironment.UnregisterObject(this);
         }
 
-        public void DoWork(Task work)
+        public void DoWork(IJob work)
         {
             if (work == null)
             {
@@ -31,21 +35,30 @@ namespace WebBackgrounder
             }
             lock (_lock)
             {
-                if (_shuttingDown)
+                if (_shuttingDown || _cts.IsCancellationRequested)
                 {
                     return;
                 }
 
-                if (work.Status == TaskStatus.Created)
+                var task = work.Execute(_cts.Token);
+
+                if (task.Status == TaskStatus.Created)
                 {
-                    work.Start();
+                    task.Start();
                 }
 
-                // Need to hold the lock until the task completes.
-                // Later on, we should take advantage of the fact that the work is represented 
-                // by a task. Instead of locking, we could simply have the Stop method cancel 
-                // any pending tasks.
-                work.Wait();
+                try
+                {
+                    // Wait() rethrows exceptions (if any) wrapped in an AggregateException.
+                    task.Wait();
+                }
+                catch (AggregateException ae)
+                {
+                    if (ae.Flatten().InnerException as OperationCanceledException == null)
+                    {
+                        throw; // Rethrow if the real exception wasn't OperationCanceledException.
+                    }
+                }
             }
         }
     }

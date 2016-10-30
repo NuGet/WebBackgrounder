@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DelegatingJob.cs" />
     <Compile Include="IJobCoordinator.cs" />
     <Compile Include="IJob.cs" />
     <Compile Include="IJobHost.cs" />

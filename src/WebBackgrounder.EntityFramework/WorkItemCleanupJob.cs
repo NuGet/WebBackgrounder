@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebBackgrounder.Jobs
@@ -29,7 +30,7 @@ namespace WebBackgrounder.Jobs
             private set;
         }
 
-        public override Task Execute()
+        public override Task Execute(CancellationToken cancellationToken)
         {
             return new Task(() =>
             {

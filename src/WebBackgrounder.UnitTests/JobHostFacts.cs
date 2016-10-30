@@ -13,25 +13,27 @@ namespace WebBackgrounder.UnitTests
             public void EnsuresNoWorkIsDone()
             {
                 var host = new JobHost();
-                var task = new Task(() => { throw new InvalidOperationException("Hey, this is supposed to be shut down!"); });
+                var job =
+                    new Task(() =>{ throw new InvalidOperationException("Hey, this is supposed to be shut down!"); })
+                    .ToJob();
 
                 host.Stop(true);
 
-                host.DoWork(task);
+                host.DoWork(job);
             }
 
             [Fact]
             public void WaitsForTaskToComplete()
             {
                 var host = new JobHost();
-                var workTask = new Task(() => host.DoWork(new Task(() =>
+                var workTask = new Task(() => host.DoWork(DelegatingJob.Create( new Task(() =>
                 {
                     // Was getting inconsistent results with Thread.Sleep(100)
                     for (int i = 0; i < 100; i++)
                     {
                         Thread.Sleep(1);
                     }
-                })));
+                }))));
                 var beforeStop = DateTime.UtcNow;
                 workTask.Start();
                 while (workTask.Status != TaskStatus.Running)
@@ -69,8 +71,55 @@ namespace WebBackgrounder.UnitTests
 
                 var host = new JobHost();
 
-                Assert.DoesNotThrow(() => host.DoWork(task));
+                Assert.DoesNotThrow(() => host.DoWork(DelegatingJob.Create(task)));
             }
+
+            [Fact]
+            public void DoesNotCallStartIfWorkIsCanceled()
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tcs.SetException(new Exception());
+                var task = tcs.Task;
+
+                var host = new JobHost();
+                host.Stop(true);
+
+                Assert.DoesNotThrow(() => host.DoWork(DelegatingJob.Create(task)));
+            }
+
+            [Fact]
+            public void CancelsJobIfWorkIsCanceled()
+            {
+                var task = default(Task);
+                Func<CancellationToken, Task> thunk = (CancellationToken token) => {
+                    task = Task.Factory.StartNew(() => {
+                        while (true)
+                        {
+                            token.ThrowIfCancellationRequested();
+                            Thread.Sleep(10);
+                        }
+                    });
+                    return task;
+                };
+
+                var host = new JobHost();
+                var stopTask = Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(100); // Give time for the host to start the work.
+                        host.Stop(true);
+                    });
+                host.DoWork(DelegatingJob.Create(thunk)); // DoWork waits on the task.
+                Assert.True(task.IsCanceled || task.IsFaulted); // This is giving me a task.IsFaulted, shouldn't it be Canceled instead?
+                stopTask.Wait();
+            }
+        }
+    }
+
+    public static class TaskExtensions
+    {
+        public static IJob ToJob(this Task @this)
+        {
+            return DelegatingJob.Create(@this);
         }
     }
 }
