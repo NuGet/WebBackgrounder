@@ -31,7 +31,7 @@ would be to allow those to easily hook in and provide this functionality.
 But for a small project, or for development environments, you still want these 
 tasks to run without requiring a bunch of setup or a connection to Azure.
 
-# What this is not
+# What this is not ?
 This is not a general purpose scheduling framework. There are much better ones 
 out there such as hangfire.io, FluentScheduler and Quartz.net. The goal of this project is 
 to handle one task only, manage a recurring task on an interval in the 
